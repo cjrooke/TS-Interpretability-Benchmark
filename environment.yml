@@ -1,0 +1,18 @@
+name: ts-interpretability-benchmark
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python>=3.6.3
+  - numpy
+  - pytorch
+  - matplotlib
+  - pandas
+  - scikit-learn
+  - symengine
+  - pip
+  - pip:
+      - timesynth
+      - captum
