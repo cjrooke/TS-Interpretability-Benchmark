@@ -1,6 +1,7 @@
 import torch
 import sys
 import argparse
+from create_empty_dirs import create_empty_dirs
 from createDatasets import createDatasets
 from train_models import main as train_models
 from interpret import main as interpret
@@ -42,6 +43,9 @@ models=["Transformer" ,"LSTMWithInputCellAttention","TCN","LSTM"]
 
 
 def main(args):
+	# Create any required directories
+	create_empty_dirs(args)
+
 	# Creating Datasets
 	createDatasets(args,DatasetsTypes,ImpTimeSteps,ImpFeatures,StartImpTimeSteps,StartImpFeatures,Loc1,Loc2,FreezeType,isMoving,isPositional,DataGenerationTypes)
 
