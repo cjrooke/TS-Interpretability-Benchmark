@@ -14,32 +14,26 @@ import timesynth as ts
 import numpy as np
 
 
-
-
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+DatasetsTypes = ["Middle", "RareTime", "RareFeature"]
 
+ImpTimeSteps = [6, 1, 14]
+ImpFeatures = [6, 14, 1]
 
-DatasetsTypes= ["Middle", "SmallMiddle", "Moving_Middle", "Moving_SmallMiddle", "RareTime", "Moving_RareTime", "RareFeature","Moving_RareFeature","PostionalTime", "PostionalFeature"]
+StartImpTimeSteps = [11, 13, 7]
+StartImpFeatures = [11, 7, 13]
 
-ImpTimeSteps=[30,14,30,15,6,6, 40,40,20,20]
-ImpFeatures=[30,14,30,15,40,40,6,6,20,20]
+Loc1 = [None, None, None]
+Loc2 = [None, None, None]
 
-StartImpTimeSteps=[10,18,10,18,22,22,5,5,None,None ]
-StartImpFeatures=[10,18,10,18,5,5,22,22,None,None ]
+FreezeType = [None, None, None]
+isMoving = [False, False, False]
+isPositional = [False, False, False]
 
-Loc1=[None,None,None,None,None,None,None,None,1,1]
-Loc2=[None,None,None,None,None,None,None,None,29,29]
+DataGenerationTypes = [None]
 
-
-FreezeType = [None,None,None,None,None,None,None,None,"Feature","Time"]
-isMoving=[False,False,True,True,False,True,False,True,None,None]
-isPositional=[False,False,False,False,False,False,False,False,True,True]
-
-DataGenerationTypes=[None ,"Harmonic", "GaussianProcess", "PseudoPeriodic", "AutoRegressive" ,"CAR","NARMA" ]
-
-models=["Transformer" ,"LSTMWithInputCellAttention","TCN","LSTM"]
+models = ["Transformer", "LSTMWithInputCellAttention", "TCN"]
 
 
 def main(args):
@@ -128,17 +122,17 @@ def parse_arguments(argv):
 	parser.add_argument('--Acc_Metrics_dir', type=str, default='../Results/Accuracy_Metrics/')
 
 	parser.add_argument('--num_classes', type=int, default=2)
-	parser.add_argument('--NumTimeSteps',type=int,default=50)
-	parser.add_argument('--NumFeatures',type=int,default=50)
+	parser.add_argument('--NumTimeSteps',type=int,default=28)
+	parser.add_argument('--NumFeatures',type=int,default=28)
 	parser.add_argument('--d_a', type=int, default=50)
 	parser.add_argument('--attention_hops', type=int, default=10)
 	parser.add_argument('--n_layers', type=int, default=6)
-	parser.add_argument('--heads', type=int, default=5)
+	parser.add_argument('--heads', type=int, default=7)
 	parser.add_argument('--kernel_size', type=int, default=4)
 	parser.add_argument('--levels', type=int,default=3)
 	parser.add_argument('--hidden_size', type=int,default=5)
 	parser.add_argument('--batch_size', type=int,default=50)
-	parser.add_argument('--num_epochs', type=int,default=500)
+	parser.add_argument('--num_epochs', type=int,default=50)
 	parser.add_argument('--learning_rate', type=float,default=0.001)
 	parser.add_argument('--rnndropout', type=float,default=0.1)
 
@@ -154,14 +148,14 @@ def parse_arguments(argv):
 
 	parser.add_argument('--GradFlag', type=bool, default=True)
 	parser.add_argument('--IGFlag', type=bool, default=True)
-	parser.add_argument('--DLFlag', type=bool, default=True)
-	parser.add_argument('--GSFlag', type=bool, default=True)
+	parser.add_argument('--DLFlag', type=bool, default=False)
+	parser.add_argument('--GSFlag', type=bool, default=False)
 	parser.add_argument('--DLSFlag', type=bool, default=True)
-	parser.add_argument('--SGFlag', type=bool, default=True)
-	parser.add_argument('--ShapleySamplingFlag', type=bool, default=True)
-	parser.add_argument('--FeaturePermutationFlag', type=bool, default=True)
-	parser.add_argument('--FeatureAblationFlag', type=bool, default=True)
-	parser.add_argument('--OcclusionFlag', type=bool, default=True)
+	parser.add_argument('--SGFlag', type=bool, default=False)
+	parser.add_argument('--ShapleySamplingFlag', type=bool, default=False)
+	parser.add_argument('--FeaturePermutationFlag', type=bool, default=False)
+	parser.add_argument('--FeatureAblationFlag', type=bool, default=False)
+	parser.add_argument('--OcclusionFlag', type=bool, default=False)
 
 	parser.add_argument('--GradTSRFlag', type=bool, default=True)
 	parser.add_argument('--IGTSRFlag', type=bool, default=True)

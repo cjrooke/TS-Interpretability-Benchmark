@@ -196,8 +196,8 @@ def parse_arguments(argv):
 
 		parser = argparse.ArgumentParser()
 		
-		parser.add_argument('--NumTimeSteps',type=int,default=50)
-		parser.add_argument('--NumFeatures',type=int,default=50)
+		parser.add_argument('--NumTimeSteps',type=int,default=28)
+		parser.add_argument('--NumFeatures',type=int,default=28)
 		parser.add_argument('--DataGenerationProcess', type=str, default=None)
 		parser.add_argument('--data_dir', type=str, default="../../Datasets/")
 		parser.add_argument('--Mask_dir', type=str, default='../../Results/Saliency_Masks/')
