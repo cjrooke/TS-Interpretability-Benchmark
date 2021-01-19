@@ -49,20 +49,6 @@ def getSamples(args,fileName):
 index=[i for i in range(0,100,10)]
 
 
-
-ignore_list = ["Moving_SmallMiddle_AutoRegressive_LSTM",\
-"RareTime_CAR_LSTM",\
-"Moving_RareFeature_Box_TCN",\
-"Moving_RareFeature_GaussianProcess_TCN",\
-"Moving_SmallMiddle_GaussianProcess_Transformer",\
-"Moving_SmallMiddle_AutoRegressive_Transformer",\
-"Moving_RareTime_GaussianProcess_Transformer",\
-"Moving_RareTime_AutoRegressive_Transformer",\
-"Moving_RareFeature_GaussianProcess_Transformer",\
-"Moving_RareFeature_AutoRegressive_Transformer"]
-
-
-
 colors = [
 					"red",
 					"green",
@@ -139,28 +125,7 @@ def main(args):
 								FileName=args.Precision_Recall_dir+ t+ "_"+ args.DataName+"_"+models[m]+"_rescaled.csv"
 								first_row_flag=True
 
-
-
-
-								if(args.DataName+"_"+models[m] in ignore_list):
-									print("ignoring",args.DataName+"_"+models[m]	)
-									DS[y,m].set_yticklabels([])
-									DS[y,m].set_xticklabels([])
-									DS[y,m].set_xticks([])
-									DS[y,m].set_yticks([])
-
-									DS[y,m].set_ylim([0, 1])
-
-									if(m==len(models)-1):
-										DS[y,m].set_ylabel(DataGenerationNames[y], fontsize=16)
-										DS[y,m].yaxis.set_label_position("right")
-
-									if(y==0):
-										DS[y,m].set_title(models_name[m],fontsize=16)
-
-									continue
-
-								else:
+								try:
 
 
 									data = getSamples(args,FileName)
@@ -189,6 +154,23 @@ def main(args):
 											DS[y,m].yaxis.set_label_position("right")
 									if(y!=len(DataGenerationTypes)-1):
 											DS[y,m].tick_params(labelbottom=False)
+								except:
+									print("ignoring",args.DataName+"_"+models[m]	)
+									DS[y,m].set_yticklabels([])
+									DS[y,m].set_xticklabels([])
+									DS[y,m].set_xticks([])
+									DS[y,m].set_yticks([])
+
+									DS[y,m].set_ylim([0, 1])
+
+									if(m==len(models)-1):
+										DS[y,m].set_ylabel(DataGenerationNames[y], fontsize=16)
+										DS[y,m].yaxis.set_label_position("right")
+
+									if(y==0):
+										DS[y,m].set_title(models_name[m],fontsize=16)
+
+									continue
 
 				handles, labels = DS[-1,-1].get_legend_handles_labels()
 				fig.legend(handles, labels, loc='center right',fontsize=16)
