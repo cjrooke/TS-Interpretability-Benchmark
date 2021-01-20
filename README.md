@@ -54,11 +54,11 @@ TS-Interpretability-Benchmark
     │
     ├── Datasets
     │
-    └── MNIST Experiments
+    └── MNIST_Experiments
         ├── Scripts
         ├── Models
         ├── Graphs
         └── Data
 ```
 - The code for the benchmark is available under Scripts folder to run full benchmark run ```python run_benchmark.py```.
-- MNIST experiments and TSR under MNIST Experiments.
+- MNIST experiments and TSR under MNIST_Experiments.
