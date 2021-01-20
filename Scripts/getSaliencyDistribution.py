@@ -7,20 +7,6 @@ import time
 
 
 
-ignore_list = ["Moving_SmallMiddle_AutoRegressive_LSTM",\
-"RareTime_CAR_LSTM",\
-"Moving_RareFeature_Box_TCN",\
-"Moving_RareFeature_GaussianProcess_TCN",\
-"Moving_SmallMiddle_GaussianProcess_Transformer",\
-"Moving_SmallMiddle_AutoRegressive_Transformer",\
-"Moving_RareTime_GaussianProcess_Transformer",\
-"Moving_RareTime_AutoRegressive_Transformer",\
-"Moving_RareFeature_GaussianProcess_Transformer",\
-"Moving_RareFeature_AutoRegressive_Transformer"]
-
-
-
-
 DatasetsTypes= ["Moving_SmallMiddle","Middle","SmallMiddle", "Moving_Middle",  "RareTime", "Moving_RareTime", "RareFeature","Moving_RareFeature","PostionalTime", "PostionalFeature"]
 DataGenerationTypes=[None,"Harmonic", "GaussianProcess", "PseudoPeriodic", "AutoRegressive" ,"CAR","NARMA" ]
 
@@ -87,11 +73,7 @@ def main(args):
 
 
 
-                if(args.DataName+"_"+models[m] in ignore_list):
-                    print("ignoring",args.DataName+"_"+models[m]  )
-                    continue
-
-                else:
+                try:
 
 
                     for _, saliency in enumerate(Saliency_Methods):
@@ -119,6 +101,9 @@ def main(args):
 
                     resultFileName=resultFileName+"_plotAll_rescaled.csv"
                     Helper.save_intoCSV(Grid,resultFileName)
+                except:
+                    print("ignoring",args.DataName+"_"+models[m]  )
+                    continue
 
 
 def parse_arguments(argv):
