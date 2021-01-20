@@ -21,8 +21,8 @@ def create_empty_dirs(args):
     # Results
     required_dirs += [args.Saliency_dir, args.Mask_dir, args.Masked_Acc_dir, args.Precision_Recall_dir,
                       args.Acc_Metrics_dir, '../Results/Saliency_Distribution']
-    # MNIST Experiments
-    required_dirs += ['../MNIST Experiments/Models', '../MNIST Experiments/Graphs', '../MNIST Experiments/Data']
+    # MNIST_Experiments
+    required_dirs += ['../MNIST_Experiments/Models', '../MNIST_Experiments/Graphs', '../MNIST_Experiments/Data']
 
     for directory in required_dirs:
         pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
