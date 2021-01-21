@@ -37,7 +37,7 @@ FreezeType = [None,None,None,None,None,None,None,None,"Feature","Time"]
 isMoving=[False,False,True,True,False,True,False,True,None,None]
 isPositional=[False,False,False,False,False,False,False,False,True,True]
 
-DataGenerationTypes=[None ,"Harmonic", "GaussianProcess", "PseudoPeriodic", "AutoRegressive" ,"CAR","NARMA" ]
+DataGenerationTypes=[None]
 
 models=["Transformer" ,"LSTMWithInputCellAttention","TCN","LSTM"]
 
