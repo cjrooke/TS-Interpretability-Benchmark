@@ -8,8 +8,7 @@ def createSample(args,Target,start_ImpTS,end_ImpTS,start_ImpFeat,end_ImpFeat):
 
 	if(args.DataGenerationProcess==None):
 		sample=np.random.normal(0,1,[args.NumTimeSteps,args.NumFeatures])
-		Features=np.random.normal(Target,1,[args.ImpTimeSteps,args.ImpFeatures])
-		sample[start_ImpTS:end_ImpTS,start_ImpFeat:end_ImpFeat]=Features
+		sample[start_ImpTS:end_ImpTS,start_ImpFeat:end_ImpFeat] += Target
 		# print(start_ImpFeat,end_ImpFeat)
 
 	else:
