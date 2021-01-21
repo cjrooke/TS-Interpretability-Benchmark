@@ -3,11 +3,10 @@ import torch.optim as optim
 import torch.nn.functional as F
 import sys, os
 sys.path.append("../../Scripts")
-from model import Transformer,TCN,LSTMWithInputCellAttention,LSTM
 import numpy as np
 import argparse
 import random
-from utils import data_generator
+from MNIST_Experiments.Scripts.utils import data_generator
 import Helper
 from Plotting import plotExampleBox
 from torch.autograd import Variable
