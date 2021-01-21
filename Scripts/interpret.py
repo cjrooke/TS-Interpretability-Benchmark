@@ -29,7 +29,7 @@ from captum.attr import (
 
 )
 
-
+from MNIST_Experiments.Scripts.interpret import getTwoStepRescaling
 
 
 
@@ -91,44 +91,55 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                 Test_Acc  =   checkAccuracy(test_loaderRNN , pretrained_model, args)
                 print('{} {} model BestAcc {:.4f}'.format(args.DataName,models[m],Test_Acc))
 
-            
-                if(Test_Acc>=90):
-
-                    if(args.GradFlag):
-                        rescaledGrad= np.zeros((TestingRNN.shape))
+                if Test_Acc >= 0:
+                    if args.GradFlag or args.GradTSRFlag:
                         Grad = Saliency(pretrained_model)
+                    if args.GradFlag:
+                        rescaledGrad = np.zeros((TestingRNN.shape))
+                    if args.GradTSRFlag:
+                        rescaledGrad_TSR = np.zeros((TestingRNN.shape))
 
-                    if(args.IGFlag):
-                        rescaledIG= np.zeros((TestingRNN.shape))
+                    if args.IGFlag or args.IGTSRFlag:
                         IG = IntegratedGradients(pretrained_model)
-                    if(args.DLFlag):
-                        rescaledDL= np.zeros((TestingRNN.shape))
+                    if args.IGFlag:
+                        rescaledIG = np.zeros((TestingRNN.shape))
+                    if args.IGTSRFlag:
+                        rescaledIG_TSR = np.zeros((TestingRNN.shape))
+
+                    if args.DLFlag:
+                        rescaledDL = np.zeros((TestingRNN.shape))
                         DL = DeepLift(pretrained_model)
-                    if(args.GSFlag):
-                        rescaledGS= np.zeros((TestingRNN.shape))
+
+                    if args.GSFlag:
+                        rescaledGS = np.zeros((TestingRNN.shape))
                         GS = GradientShap(pretrained_model)
-                    if(args.DLSFlag):
-                        rescaledDLS= np.zeros((TestingRNN.shape))
+
+                    if args.DLSFlag or args.DLSTSRFlag:
                         DLS = DeepLiftShap(pretrained_model)
+                    if args.DLSFlag:
+                        rescaledDLS = np.zeros((TestingRNN.shape))
+                    if args.DLSTSRFlag:
+                        rescaledDLS_TSR = np.zeros((TestingRNN.shape))
                                 
-                    if(args.SGFlag):
-                        rescaledSG= np.zeros((TestingRNN.shape))
+                    if args.SGFlag:
+                        rescaledSG = np.zeros((TestingRNN.shape))
                         Grad_ = Saliency(pretrained_model)
                         SG = NoiseTunnel(Grad_)
 
-
-                    if(args.ShapleySamplingFlag):
-                        rescaledShapleySampling= np.zeros((TestingRNN.shape))
+                    if args.ShapleySamplingFlag:
+                        rescaledShapleySampling = np.zeros((TestingRNN.shape))
                         SS = ShapleyValueSampling(pretrained_model)
-                    if(args.GSFlag):
-                        rescaledFeaturePermutation= np.zeros((TestingRNN.shape))
+
+                    if args.GSFlag:
+                        rescaledFeaturePermutation = np.zeros((TestingRNN.shape))
                         FP = FeaturePermutation(pretrained_model)
-                    if(args.FeatureAblationFlag):
-                        rescaledFeatureAblation= np.zeros((TestingRNN.shape))
+
+                    if args.FeatureAblationFlag:
+                        rescaledFeatureAblation = np.zeros((TestingRNN.shape))
                         FA = FeatureAblation(pretrained_model)
                                 
-                    if(args.OcclusionFlag):
-                        rescaledOcclusion= np.zeros((TestingRNN.shape))
+                    if args.OcclusionFlag:
+                        rescaledOcclusion = np.zeros((TestingRNN.shape))
                         OS = Occlusion(pretrained_model)
 
 
@@ -156,186 +167,147 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                         mask_single=mask_single.reshape(1,args.NumTimeSteps, args.NumFeatures).to(device)
                         labels=torch.tensor(labels.int().tolist()).to(device)
 
+                        if args.GradFlag:
+                            attributions = Grad.attribute(input, target=labels)
+                            rescaledGrad[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
+                        if args.GradTSRFlag:
+                            TSR_attributions = getTwoStepRescaling(Grad, input, args.NumFeatures, args.NumTimeSteps, labels)
+                            rescaledGrad_TSR[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args, TSR_attributions, isTensor=False)
 
+                        if args.IGFlag:
+                            attributions = IG.attribute(input, baselines=baseline_single, target=labels)
+                            rescaledIG[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
+                        if args.IGTSRFlag:
+                            TSR_attributions = getTwoStepRescaling(IG, input, args.NumFeatures, args.NumTimeSteps, labels, hasBaseline=baseline_single)
+                            rescaledIG_TSR[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args, TSR_attributions, isTensor=False)
 
+                        if args.DLFlag:
+                            attributions = DL.attribute(input, baselines=baseline_single, target=labels)
+                            rescaledDL[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
 
+                        if args.GSFlag:
+                            attributions = GS.attribute(input, baselines=baseline_multiple, stdevs=0.09, target=labels)
+                            rescaledGS[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
 
-                        if(args.GradFlag):
-                            attributions = Grad.attribute(input, \
-                                                          target=labels)
-                            rescaledGrad[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        if args.DLSFlag:
+                            attributions = DLS.attribute(input, baselines=baseline_multiple, target=labels)
+                            rescaledDLS[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
+                        if args.DLSTSRFlag:
+                            TSR_attributions = getTwoStepRescaling(DLS, input, args.NumFeatures, args.NumTimeSteps, labels, hasBaseline=baseline_multiple)
+                            rescaledDLS_TSR[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args, TSR_attributions, isTensor=False)
 
+                        if args.SGFlag:
+                            attributions = SG.attribute(input, target=labels)
+                            rescaledSG[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
 
-                        if(args.IGFlag):
-                            attributions = IG.attribute(input,  \
-                                                        baselines=baseline_single, \
-                                                        target=labels)
-                            rescaledIG[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        if args.ShapleySamplingFlag:
+                            attributions = SS.attribute(input, baselines=baseline_single, target=labels, feature_mask=inputMask)
+                            rescaledShapleySampling[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
 
+                        if args.FeaturePermutationFlag:
+                            attributions = FP.attribute(input, target=labels, perturbations_per_eval= input.shape[0], feature_mask=mask_single)
+                            rescaledFeaturePermutation[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
 
-
-
-                        if(args.DLFlag):
-                            attributions = DL.attribute(input,  \
-                                                        baselines=baseline_single, \
-                                                        target=labels)
-                            rescaledDL[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
-
-
-
-
-
-                        if(args.GSFlag):
-
-                            attributions = GS.attribute(input,  \
-                                                        baselines=baseline_multiple, \
-                                                        stdevs=0.09,\
-                                                        target=labels)
-                            rescaledGS[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
-
-
-                        if(args.DLSFlag):
-
-                            attributions = DLS.attribute(input,  \
-                                                        baselines=baseline_multiple, \
-                                                        target=labels)
-                            rescaledDLS[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
-
-
-
-
-                        if(args.SGFlag):
-                            attributions = SG.attribute(input, \
-                                                        target=labels)
-                            rescaledSG[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
-
-
-
-                        if(args.ShapleySamplingFlag):
-                            attributions = SS.attribute(input, \
-                                            baselines=baseline_single, \
-                                            target=labels,\
-                                            feature_mask=inputMask)
-                            rescaledShapleySampling[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
-
-
-                        if(args.FeaturePermutationFlag):
-                            attributions = FP.attribute(input, \
-                                            target=labels,
-                                            perturbations_per_eval= input.shape[0],\
-                                            feature_mask=mask_single)
-                            rescaledFeaturePermutation[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions) 
-
-
-                        if(args.FeatureAblationFlag):
-                            attributions = FA.attribute(input, \
-                                            target=labels)
+                        if args.FeatureAblationFlag:
+                            attributions = FA.attribute(input, target=labels)
                                             # perturbations_per_eval= input.shape[0],\
                                             # feature_mask=mask_single)
-                            rescaledFeatureAblation[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions) 
+                            rescaledFeatureAblation[idx:idx+batch_size,:,:] = Helper.givenAttGetRescaledSaliency(args,attributions)
 
-
-                        if(args.OcclusionFlag):
-                            attributions = OS.attribute(input, \
-                                            sliding_window_shapes=(1,args.NumFeatures),
-                                            target=labels,
-                                            baselines=baseline_single)
-                            rescaledOcclusion[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions) 
-
+                        if args.OcclusionFlag:
+                            attributions = OS.attribute(input, sliding_window_shapes=(1,args.NumFeatures), target=labels, baselines=baseline_single)
+                            rescaledOcclusion[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
 
                         idx+=batch_size
 
-
-
-                    if(args.plot):
+                    if args.plot:
                         index = random.randint(0,TestingRNN.shape[0]-1)
                         plotExampleBox(TestingRNN[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_sample',flip=True)
 
                         print("Plotting sample",index)
-                        if(args.GradFlag):
+                        if args.GradFlag:
                             plotExampleBox(rescaledGrad[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_Grad',greyScale=True,flip=True)
+                        if args.GradTSRFlag:
+                            plotExampleBox(rescaledGrad_TSR[index,:,:], args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_Grad_TSR',greyScale=True,flip=True)
 
-                        if(args.IGFlag):
+                        if args.IGFlag:
                             plotExampleBox(rescaledIG[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_IG',greyScale=True, flip=True)
+                        if args.IGTSRFlag:
+                            plotExampleBox(rescaledIG_TSR[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_IG_TSR',greyScale=True, flip=True)
 
-
-                        if(args.DLFlag):
+                        if args.DLFlag:
                             plotExampleBox(rescaledDL[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_DL',greyScale=True, flip=True)
 
-
-                        if(args.GSFlag):
+                        if args.GSFlag:
                             plotExampleBox(rescaledGS[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_GS',greyScale=True, flip=True)
 
-
-                        if(args.DLSFlag):
+                        if args.DLSFlag:
                             plotExampleBox(rescaledDLS[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_DLS',greyScale=True, flip=True)
+                        if args.DLSTSRFlag:
+                            plotExampleBox(rescaledDLS_TSR[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_DLS_TSR',greyScale=True, flip=True)
 
-
-                        if(args.SGFlag):
+                        if args.SGFlag:
                             plotExampleBox(rescaledSG[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_SG',greyScale=True, flip=True)
 
-
-                        if(args.ShapleySamplingFlag):
+                        if args.ShapleySamplingFlag:
                             plotExampleBox(rescaledShapleySampling[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_ShapleySampling',greyScale=True, flip=True)
 
-
-                        if(args.FeaturePermutationFlag):
+                        if args.FeaturePermutationFlag:
                             plotExampleBox(rescaledFeaturePermutation[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_FeaturePermutation',greyScale=True, flip=True)
 
-
-                        if(args.FeatureAblationFlag):
+                        if args.FeatureAblationFlag:
                             plotExampleBox(rescaledFeatureAblation[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_FeatureAblation',greyScale=True, flip=True)
 
-                        if(args.OcclusionFlag):
+                        if args.OcclusionFlag:
                             plotExampleBox(rescaledOcclusion[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_Occlusion',greyScale=True, flip=True)
 
-                    if(args.save):
-                        if(args.GradFlag):
+                    if args.save:
+                        if args.GradFlag:
                             print("Saving Grad" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_Grad_rescaled", rescaledGrad)
+                        if args.GradTSRFlag:
+                            print("Saving Grad_TSR" ,modelName+"_"+models[m])
+                            np.save(args.Saliency_dir + modelName + "_" + models[m] + "_Grad_TSR_rescaled", rescaledGrad_TSR)
 
-                        if(args.IGFlag):
+                        if args.IGFlag:
                             print("Saving IG" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_IG_rescaled", rescaledIG)
+                        if args.IGTSRFlag:
+                            print("Saving IG_TSR" ,modelName+"_"+models[m])
+                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_IG_TSR_rescaled", rescaledIG)
 
-
-
-                        if(args.DLFlag):
+                        if args.DLFlag:
                             print("Saving DL" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_DL_rescaled", rescaledDL)
 
-
-
-                        if(args.GSFlag):
+                        if args.GSFlag:
                             print("Saving GS" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_GS_rescaled", rescaledGS)
 
-
-                        if(args.DLSFlag):
+                        if args.DLSFlag:
                             print("Saving DLS" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_DLS_rescaled", rescaledDLS)
+                        if args.DLSTSRFlag:
+                            print("Saving DLS_TSR" ,modelName+"_"+models[m])
+                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_DLS_TSR_rescaled", rescaledDLS)
 
-
-                        if(args.SGFlag):
+                        if args.SGFlag:
                             print("Saving SG" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_SG_rescaled", rescaledSG)
 
-                        if(args.ShapleySamplingFlag):
+                        if args.ShapleySamplingFlag:
                             print("Saving ShapleySampling" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_ShapleySampling_rescaled", rescaledShapleySampling)
 
-
-                        if(args.FeaturePermutationFlag):
+                        if args.FeaturePermutationFlag:
                             print("Saving FeaturePermutation" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_FeaturePermutation_rescaled", rescaledFeaturePermutation)
 
-
-                        if(args.FeatureAblationFlag):
+                        if args.FeatureAblationFlag:
                             print("Saving FeatureAblation" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_FeatureAblation_rescaled", rescaledFeatureAblation)
 
-
-                        if(args.OcclusionFlag):
+                        if args.OcclusionFlag:
                             print("Saving Occlusion" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_Occlusion_rescaled", rescaledOcclusion)
 

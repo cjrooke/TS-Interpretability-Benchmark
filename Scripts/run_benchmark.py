@@ -163,7 +163,11 @@ def parse_arguments(argv):
 	parser.add_argument('--FeatureAblationFlag', type=bool, default=True)
 	parser.add_argument('--OcclusionFlag', type=bool, default=True)
 
-	return  parser.parse_args()
+	parser.add_argument('--GradTSRFlag', type=bool, default=True)
+	parser.add_argument('--IGTSRFlag', type=bool, default=True)
+	parser.add_argument('--DLSTSRFlag', type=bool, default=True)
+
+	return parser.parse_args()
 
 if __name__ == '__main__':
 	main(parse_arguments(sys.argv[1:]))

@@ -43,6 +43,36 @@ def givenAttGetRescaledSaliency(args,attributions,isTensor=True):
     return rescaledSaliency
 
 
+def getSaliencyMethodsFromArgs(args):
+    saliency_methods = []
+    if args.GradFlag:
+        saliency_methods.append("Grad")
+    if args.GradTSRFlag:
+        saliency_methods.append("Grad_TSR")
+    if args.IGFlag:
+        saliency_methods.append("IG")
+    if args.IGTSRFlag:
+        saliency_methods.append("IG_TSR")
+    if args.DLFlag:
+        saliency_methods.append("DL")
+    if args.GSFlag:
+        saliency_methods.append("GS")
+    if args.DLSFlag:
+        saliency_methods.append("DLS")
+    if args.DLSTSRFlag:
+        saliency_methods.append("DLS_TSR")
+    if args.SGFlag:
+        saliency_methods.append("SG")
+    if args.ShapleySamplingFlag:
+        saliency_methods.append("ShapleySampling")
+    if args.FeaturePermutationFlag:
+        saliency_methods.append("FeaturePermutation")
+    if args.FeatureAblationFlag:
+        saliency_methods.append("FeatureAblation")
+    if args.OcclusionFlag:
+        saliency_methods.append("Occlusion")
+    return saliency_methods
+
 
 def save_intoCSV(data,file,Flip=False,col=None,index=False):
 	if(Flip):
@@ -186,7 +216,7 @@ def getRowColMaskIndex(mask,rows,columns):
             InRow[i,int(cleanIndex[index]/columns)]=True
     return InRow,InColumn
 
-                                         
+
 
 
 
@@ -226,6 +256,3 @@ def checkAccuracy(test_loader , model ,args,isCNN=False,returnLoss=False):
         return  (100 * float(correct) / total),loss
 
     return  (100 * float(correct) / total)
-
-
-

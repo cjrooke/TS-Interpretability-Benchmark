@@ -24,29 +24,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models):
 	else:
 		ignore_list=[]
 
-	Saliency_Methods=[]
-
-	if(args.GradFlag):
-		Saliency_Methods.append("Grad")
-	if(args.IGFlag):
-		Saliency_Methods.append("IG")
-	if(args.DLFlag):
-		Saliency_Methods.append("DL")
-	if(args.GSFlag):
-		Saliency_Methods.append("GS")
-	if(args.DLSFlag):
-		Saliency_Methods.append("DLS")
-	if(args.SGFlag):
-		Saliency_Methods.append("SG")
-	if(args.ShapleySamplingFlag):
-		Saliency_Methods.append("ShapleySampling")
-	if(args.FeaturePermutationFlag):
-		Saliency_Methods.append("FeaturePermutation")
-	if(args.FeatureAblationFlag):
-		Saliency_Methods.append("FeatureAblation")
-	if(args.OcclusionFlag):
-		Saliency_Methods.append("Occlusion")
-
+	Saliency_Methods = Helper.getSaliencyMethodsFromArgs(args)
 	Saliency_Methods.append("Random")
 
 	
