@@ -274,7 +274,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_IG_rescaled", rescaledIG)
                         if args.IGTSRFlag:
                             print("Saving IG_TSR" ,modelName+"_"+models[m])
-                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_IG_TSR_rescaled", rescaledIG)
+                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_IG_TSR_rescaled", rescaledIG_TSR)
 
                         if args.DLFlag:
                             print("Saving DL" ,modelName+"_"+models[m])
@@ -289,7 +289,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_DLS_rescaled", rescaledDLS)
                         if args.DLSTSRFlag:
                             print("Saving DLS_TSR" ,modelName+"_"+models[m])
-                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_DLS_TSR_rescaled", rescaledDLS)
+                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_DLS_TSR_rescaled", rescaledDLS_TSR)
 
                         if args.SGFlag:
                             print("Saving SG" ,modelName+"_"+models[m])
