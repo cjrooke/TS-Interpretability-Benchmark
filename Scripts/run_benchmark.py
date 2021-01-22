@@ -21,25 +21,25 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 
-DatasetsTypes= ["Middle", "SmallMiddle", "Moving_Middle", "Moving_SmallMiddle", "RareTime", "Moving_RareTime", "RareFeature","Moving_RareFeature","PostionalTime", "PostionalFeature"]
+DatasetsTypes= ["Middle", "Moving_Middle"]
 
-ImpTimeSteps=[30,14,30,15,6,6, 40,40,20,20]
-ImpFeatures=[30,14,30,15,40,40,6,6,20,20]
+ImpTimeSteps=[30,30]
+ImpFeatures=[30,30]
 
-StartImpTimeSteps=[10,18,10,18,22,22,5,5,None,None ]
-StartImpFeatures=[10,18,10,18,5,5,22,22,None,None ]
+StartImpTimeSteps=[10,10]
+StartImpFeatures=[10,10]
 
-Loc1=[None,None,None,None,None,None,None,None,1,1]
-Loc2=[None,None,None,None,None,None,None,None,29,29]
+Loc1=[None,None]
+Loc2=[None,None]
 
 
-FreezeType = [None,None,None,None,None,None,None,None,"Feature","Time"]
-isMoving=[False,False,True,True,False,True,False,True,None,None]
-isPositional=[False,False,False,False,False,False,False,False,True,True]
+FreezeType = [None,None]
+isMoving=[False,True]
+isPositional=[False,False]
 
-DataGenerationTypes=[None ,"Harmonic", "GaussianProcess", "PseudoPeriodic", "AutoRegressive" ,"CAR","NARMA" ]
+DataGenerationTypes=[None]
 
-models=["Transformer" ,"LSTMWithInputCellAttention","TCN","LSTM"]
+models=["TCN"]
 
 
 def main(args):
@@ -154,15 +154,15 @@ def parse_arguments(argv):
 
 	parser.add_argument('--GradFlag', type=bool, default=True)
 	parser.add_argument('--IGFlag', type=bool, default=True)
-	parser.add_argument('--DLFlag', type=bool, default=True)
-	parser.add_argument('--GSFlag', type=bool, default=True)
+	parser.add_argument('--DLFlag', type=bool, default=False)
+	parser.add_argument('--GSFlag', type=bool, default=False)
 	parser.add_argument('--DLSFlag', type=bool, default=True)
-	parser.add_argument('--SGFlag', type=bool, default=True)
-	parser.add_argument('--ShapleySamplingFlag', type=bool, default=True)
-	parser.add_argument('--FeaturePermutationFlag', type=bool, default=True)
-	parser.add_argument('--FeatureAblationFlag', type=bool, default=True)
-	parser.add_argument('--OcclusionFlag', type=bool, default=True)
-	parser.add_argument('--FITFlag', type=bool, default=True)
+	parser.add_argument('--SGFlag', type=bool, default=False)
+	parser.add_argument('--ShapleySamplingFlag', type=bool, default=False)
+	parser.add_argument('--FeaturePermutationFlag', type=bool, default=False)
+	parser.add_argument('--FeatureAblationFlag', type=bool, default=False)
+	parser.add_argument('--OcclusionFlag', type=bool, default=False)
+	parser.add_argument('--FITFlag', type=bool, default=False)
 
 	parser.add_argument('--GradTSRFlag', type=bool, default=True)
 	parser.add_argument('--IGTSRFlag', type=bool, default=True)
