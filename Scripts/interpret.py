@@ -1,11 +1,13 @@
 import torch
 import argparse
 import sys
+# TODO: Find a better way to do this
+sys.path.append('../time_series_explainability')
 from torch.autograd import Variable
 import torch.utils.data as data_utils
 import numpy as np
 import Helper
-from Helper import checkAccuracy  
+from Helper import checkAccuracy
 import random
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 from Plotting import *
@@ -30,6 +32,8 @@ from captum.attr import (
 )
 
 from MNIST_Experiments.Scripts.interpret import getTwoStepRescaling
+from time_series_explainability.TSX.generator import JointFeatureGenerator
+from time_series_explainability.TSX.explainers import FITExplainer
 
 
 
@@ -142,6 +146,13 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                         rescaledOcclusion = np.zeros((TestingRNN.shape))
                         OS = Occlusion(pretrained_model)
 
+                    if args.FITFlag:
+                        # TODO: Figure out a good set of hyperparameters for these
+                        rescaledFIT = np.zeros((TestingRNN.shape))
+                        FIT = FITExplainer(pretrained_model, ft_dim_last=True)
+                        generator = JointFeatureGenerator(args.NumFeatures, latent_size=50, data='none')
+                        # TODO: Increase epochs
+                        FIT.fit_generator(generator, train_loaderRNN, test_loaderRNN, n_epochs=1)
 
                     idx=0
                     mask=np.zeros((args.NumTimeSteps, args.NumFeatures),dtype=int)
@@ -218,6 +229,10 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                             attributions = OS.attribute(input, sliding_window_shapes=(1,args.NumFeatures), target=labels, baselines=baseline_single)
                             rescaledOcclusion[idx:idx+batch_size,:,:]=Helper.givenAttGetRescaledSaliency(args,attributions)
 
+                        if args.FITFlag:
+                            attributions = torch.from_numpy(FIT.attribute(input, labels))
+                            rescaledFIT[idx:idx+batch_size, :, :] = Helper.givenAttGetRescaledSaliency(args, attributions)
+
                         idx+=batch_size
 
                     if args.plot:
@@ -260,6 +275,9 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
 
                         if args.OcclusionFlag:
                             plotExampleBox(rescaledOcclusion[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_Occlusion',greyScale=True, flip=True)
+
+                        if args.FITFlag:
+                            plotExampleBox(rescaledFIT[index,:,:],args.Saliency_Maps_graphs_dir+args.DataName+"_"+models[m]+'_FIT',greyScale=True, flip=True)
 
                     if args.save:
                         if args.GradFlag:
@@ -310,6 +328,10 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                         if args.OcclusionFlag:
                             print("Saving Occlusion" ,modelName+"_"+models[m])
                             np.save(args.Saliency_dir+modelName+"_"+models[m]+"_Occlusion_rescaled", rescaledOcclusion)
+
+                        if args.FITFlag:
+                            print("Saving FIT" ,modelName+"_"+models[m])
+                            np.save(args.Saliency_dir+modelName+"_"+models[m]+"_FIT_rescaled", rescaledFIT)
 
                 else:
                     logging.basicConfig(filename=args.log_file,level=logging.DEBUG)

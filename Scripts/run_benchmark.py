@@ -162,6 +162,7 @@ def parse_arguments(argv):
 	parser.add_argument('--FeaturePermutationFlag', type=bool, default=True)
 	parser.add_argument('--FeatureAblationFlag', type=bool, default=True)
 	parser.add_argument('--OcclusionFlag', type=bool, default=True)
+	parser.add_argument('--FITFlag', type=bool, default=True)
 
 	parser.add_argument('--GradTSRFlag', type=bool, default=True)
 	parser.add_argument('--IGTSRFlag', type=bool, default=True)
