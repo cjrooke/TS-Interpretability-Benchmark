@@ -15,6 +15,7 @@ import torch.nn as nn
 
 def train_model(model, model_type, model_name, criterion, train_loader, test_loader, device, num_timesteps,
 				num_features, num_epochs, data_name, learning_rate):
+	model.double()
 	optimizerTimeAtten = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 	saveModelName = "../Models/" + model_type + "/" + model_name
@@ -136,8 +137,6 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
 					net=TCN(args.NumFeatures,args.num_classes,num_chans,args.kernel_size,args.rnndropout).to(device)
 				else:
 					raise Exception(f'Model type {models[m]} not recognized')
-
-				net.double()
 
 				train_model(net, models[m], modelName, criterion, train_loaderRNN, test_loaderRNN, device,
 							args.NumTimeSteps, args.NumFeatures, args.num_epochs, args.DataName, args.learning_rate)
