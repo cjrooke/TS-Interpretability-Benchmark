@@ -15,8 +15,88 @@ import random
 from Plotting import *
 
 
-maskedPercentages=[ i for i in range(0,101,10)]
+def get_masked_accuracy(saliency_methods, masked_acc_dir, data_name, model_type, model_name, device, test_loader,
+                        num_timesteps, num_features, mask_dir, test_data, test_label, scaler, graph_dir, batch_size,
+                        data_generation_process, sampler="regular", frequency=2.0,
+                        kernel="Matern", ar_param=0.9, order=10, has_noise=False, plot=False):
+    maskedPercentages = [i for i in range(0, 101, 10)]
 
+    start = time.time()
+    resultFileName = masked_acc_dir + data_name + "_" + model_type
+
+    Y_DimOfGrid = len(maskedPercentages) + 1
+    X_DimOfGrid = len(saliency_methods)
+
+    Grid = np.zeros((X_DimOfGrid, Y_DimOfGrid), dtype='object')
+
+    Grid[:, 0] = saliency_methods
+    columns = ["saliency method"]
+    for mask in maskedPercentages:
+        columns.append(str(mask))
+
+    savemodel_name = "../Models/" + model_type + "/" + model_name
+    saveModelBestName = savemodel_name + "_BEST.pkl"
+
+    pretrained_model = torch.load(saveModelBestName, map_location=device)
+    Test_Unmasked_Acc = checkAccuracy(test_loader, pretrained_model, num_timesteps, num_features)
+
+    for s, saliency in enumerate(saliency_methods):
+        Test_Masked_Acc = Test_Unmasked_Acc
+        for i, maskedPercentage in enumerate(maskedPercentages):
+
+            start_percentage = time.time()
+            if (maskedPercentage == 0):
+                Grid[s][i + 1] = Test_Unmasked_Acc
+            elif (Test_Masked_Acc == 0):
+                Grid[s][i + 1] = Test_Masked_Acc
+            else:
+                if (maskedPercentage != 100):
+                    mask = np.load(mask_dir + model_name + "_" + model_type + "_" + saliency + "_" + str(
+                        maskedPercentage) + "_percentSal_rescaled.npy")
+
+                    toMask = np.copy(test_data)
+                    MaskedTesting = Helper.maskData(data_generation_process, num_timesteps, num_features, sampler,
+                                                      frequency, kernel, ar_param, order, has_noise, toMask, mask, True)
+                    MaskedTesting = scaler.transform(MaskedTesting)
+                    MaskedTesting = MaskedTesting.reshape(-1, num_timesteps, num_features)
+
+                else:
+
+                    MaskedTesting = np.zeros((test_data.shape[0], num_timesteps * num_features))
+                    sample = Helper.generateNewSample(data_generation_process, num_timesteps, num_features, sampler,
+                                                      frequency, kernel, ar_param, order, has_noise).reshape(num_timesteps * num_features)
+                    MaskedTesting[:, :] = sample
+
+                    MaskedTesting = scaler.transform(MaskedTesting)
+                    MaskedTesting = MaskedTesting.reshape(-1, num_timesteps, num_features)
+
+                if plot:
+                    randomIndex = 10
+                    plotExampleBox(MaskedTesting[randomIndex], graph_dir + data_name + "_" + model_type
+                                   + "_" + saliency + "_percentMasked" + str(maskedPercentage), flip=True)
+
+                Maskedtest_dataRNN = data_utils.TensorDataset(torch.from_numpy(MaskedTesting),
+                                                              torch.from_numpy(test_label))
+                Maskedtest_loader = data_utils.DataLoader(Maskedtest_dataRNN, batch_size=batch_size,
+                                                             shuffle=False)
+
+                Test_Masked_Acc = checkAccuracy(Maskedtest_loader, pretrained_model, num_timesteps,
+                                                num_features)
+                print('{} {} {} Acc {:.2f} Masked Acc {:.2f} Highest Value mask {}'.format(data_name, model_type,
+                                                                                           saliency,
+                                                                                           Test_Unmasked_Acc,
+                                                                                           Test_Masked_Acc,
+                                                                                           maskedPercentage))
+                Grid[s][i + 1] = Test_Masked_Acc
+            end_percentage = time.time()
+    end = time.time()
+    print('{} {} time: {}'.format(data_name, model_type, end - start))
+    print()
+
+    for percent in maskedPercentages:
+        resultFileName = resultFileName + "_" + str(percent)
+    resultFileName = resultFileName + "_percentSal_rescaled.csv"
+    Helper.save_intoCSV(Grid, resultFileName, col=columns)
 
 
 def main(args,DatasetsTypes,DataGenerationTypes,models,device):
@@ -83,89 +163,14 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
             modelName+=args.DataName
 
             for m in range(len(models)):
-                start = time.time()
-                resultFileName=args.Masked_Acc_dir + args.DataName+"_"+models[m]
-
-
-                Y_DimOfGrid=len(maskedPercentages)+1
-                X_DimOfGrid=len(Saliency_Methods)
-
-                Grid = np.zeros((X_DimOfGrid,Y_DimOfGrid),dtype='object')
-
-                Grid[:,0]=Saliency_Methods
-                columns=["saliency method"]
-                for mask in maskedPercentages:
-                    columns.append(str(mask))
-
-
-                if(args.DataName+"_"+models[m] in ignore_list):
-                    print("ignoring",args.DataName+"_"+models[m]  )
+                if (args.DataName + "_" + models[m] in ignore_list):
+                    print("ignoring", args.DataName + "_" + models[m])
                     continue
                 
-                else:
-
-                    saveModelName="../Models/"+models[m]+"/"+modelName
-                    saveModelBestName =saveModelName +"_BEST.pkl"
-
-
-
-                    pretrained_model = torch.load(saveModelBestName,map_location=device) 
-                    Test_Unmasked_Acc  =   checkAccuracy(test_loaderRNN , pretrained_model, args.NumTimeSteps, args.NumFeatures)
-
-
-                    for s,saliency in enumerate(Saliency_Methods):
-                        Test_Masked_Acc=Test_Unmasked_Acc
-                        for i , maskedPercentage in enumerate(maskedPercentages):
-                            
-                            start_percentage=time.time()
-                            if(maskedPercentage==0):
-                                Grid[s][i+1]=Test_Unmasked_Acc
-                            elif(Test_Masked_Acc==0):
-                                Grid[s][i+1]=Test_Masked_Acc
-                            else:
-                                if(maskedPercentage !=100):
-                                    mask = np.load(args.Mask_dir+modelName+"_"+models[m]+"_"+saliency+"_"+str(maskedPercentage)+"_percentSal_rescaled.npy")
-
-                                    toMask=np.copy(raw_Testing)
-                                    MaskedTesting=Helper.maskData(args,toMask,mask,True)
-                                    MaskedTesting=scaler.transform(MaskedTesting)
-                                    MaskedTesting=MaskedTesting.reshape(-1,args.NumTimeSteps,args.NumFeatures)
-
-                                else:
-
-                                    MaskedTesting=np.zeros((Testing.shape[0] , args.NumTimeSteps*args.NumFeatures))
-                                    sample = Helper.generateNewSample(args).reshape(args.NumTimeSteps*args.NumFeatures)
-                                    MaskedTesting[:,:]= sample
-
-                                    MaskedTesting=scaler.transform(MaskedTesting)
-                                    MaskedTesting=MaskedTesting.reshape(-1,args.NumTimeSteps,args.NumFeatures)
-
-                                if(args.plot):
-
-                                    randomIndex = 10
-                                    plotExampleBox(MaskedTesting[randomIndex],args.Graph_dir+args.DataName+"_"+models[m]+"_"+saliency+"_percentMasked"+str(maskedPercentage),flip=True)
-
-
-                                Maskedtest_dataRNN = data_utils.TensorDataset(torch.from_numpy(MaskedTesting),torch.from_numpy( TestingLabel))
-                                Maskedtest_loaderRNN = data_utils.DataLoader(Maskedtest_dataRNN, batch_size=args.batch_size, shuffle=False)
-
-                                Test_Masked_Acc = checkAccuracy(Maskedtest_loaderRNN , pretrained_model, args.NumTimeSteps, args.NumFeatures)
-                                print('{} {} {} Acc {:.2f} Masked Acc {:.2f} Highest Value mask {}'.format(args.DataName,models[m],saliency,Test_Unmasked_Acc ,Test_Masked_Acc,maskedPercentage))
-                                Grid[s][i+1]=Test_Masked_Acc
-                            end_percentage=time.time()
-                    end = time.time()
-                    print('{} {} time: {}'.format(args.DataName,models[m],end-start))
-                    print()
-
-
-
-                    for percent in maskedPercentages:
-
-                        resultFileName=resultFileName+"_"+str(percent)
-                    resultFileName=resultFileName+"_percentSal_rescaled.csv"
-                    Helper.save_intoCSV(Grid,resultFileName,col=columns)
-
-
-
+                get_masked_accuracy(Saliency_Methods, args.Masked_Acc_dir, args.DataName, models[m], modelName, device,
+                                    test_loaderRNN, args.NumTimeSteps, args.NumFeatures, args.Mask_dir, raw_Testing,
+                                    TestingLabel, scaler, args.Graph_dir, args.batch_size, args.DataGenerationProcess,
+                                    args.Sampler, args.Frequency, args.Kernal, args.ar_param, args.Order, args.hasNoise,
+                                    args.plot)
 
             np.load = np_load_old

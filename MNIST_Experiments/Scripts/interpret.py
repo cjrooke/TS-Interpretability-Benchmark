@@ -201,12 +201,12 @@ def main(args):
                         attributions = Grad.attribute(input, \
                                                       target=labels)
                         
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
 
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_Grad_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(Grad,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=None)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_Grad_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
@@ -215,12 +215,12 @@ def main(args):
                         attributions = IG.attribute(input,  \
                                                     baselines=baseline_single, \
                                                     target=labels)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
 
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_IG_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(IG,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=baseline_single)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_IG_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
@@ -230,13 +230,13 @@ def main(args):
                         attributions = DL.attribute(input,  \
                                                     baselines=baseline_single, \
                                                     target=labels)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_DL_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(DL,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=baseline_single)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_DL_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
@@ -248,13 +248,13 @@ def main(args):
                                                     baselines=baseline_multiple, \
                                                     stdevs=0.09,\
                                                     target=labels)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_GS_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
  
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(GS,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=baseline_multiple)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_GS_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
@@ -263,11 +263,11 @@ def main(args):
                         attributions = DLS.attribute(input,  \
                                                     baselines=baseline_multiple, \
                                                     target=labels)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_DLS_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(DLS,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=baseline_multiple)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_DLS_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
@@ -275,11 +275,11 @@ def main(args):
                     if(args.SGFlag):
                         attributions = SG.attribute(input, \
                                                     target=labels)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_SG_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(SG,input, args.NumFeatures,args.NumTimeSteps, labels)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_SG_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 
@@ -288,18 +288,18 @@ def main(args):
                                         baselines=baseline_single, \
                                         target=labels,\
                                         feature_mask=inputMask)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions)
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_SVS_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(SS,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=baseline_single,hasFeatureMask=inputMask)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_SVS_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                     # if(args.FeaturePermutationFlag):
                     #     attributions = FP.attribute(input, \
                     #                     target=labels),
                     #                     # perturbations_per_eval= 1,\
                     #                     # feature_mask=mask_single)
-                    #     saliency_=Helper.givenAttGetRescaledSaliency(args,attributions) 
+                    #     saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                     #     plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_FP',greyScale=True)
 
 
@@ -308,11 +308,11 @@ def main(args):
                                         target=labels)
                                         # perturbations_per_eval= input.shape[0],\
                                         # feature_mask=mask_single)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions) 
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_FA_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(FA,input, args.NumFeatures,args.NumTimeSteps, labels)
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_FA_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
                     if(args.OcclusionFlag):
@@ -320,12 +320,12 @@ def main(args):
                                         sliding_window_shapes=(1,int(args.NumFeatures/10)),
                                         target=labels,
                                         baselines=baseline_single)
-                        saliency_=Helper.givenAttGetRescaledSaliency(args,attributions) 
+                        saliency_=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,attributions)
 
                         plotExampleBox(saliency_[0],args.Graph_dir+models[m]+'_FO_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
                         if(args.TSRFlag):
                             TSR_attributions =  getTwoStepRescaling(OS,input, args.NumFeatures,args.NumTimeSteps, labels,hasBaseline=baseline_single,hasSliding_window_shapes= (1,int(args.NumFeatures/10)))
-                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args,TSR_attributions,isTensor=False)
+                            TSR_saliency=Helper.givenAttGetRescaledSaliency(args.NumTimeSteps, args.NumFeatures,TSR_attributions,isTensor=False)
                             plotExampleBox(TSR_saliency,args.Graph_dir+models[m]+'_TSR_FO_MNIST_'+str(target_)+'_index_'+str(i+1),greyScale=True)
 
 

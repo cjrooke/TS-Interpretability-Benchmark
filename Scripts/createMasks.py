@@ -6,12 +6,33 @@ import random
 import os
 
 
+def create_masks(saliency_methods, saliency_dir, mask_dir, model_type, model_name):
+	percentages = [i for i in range(10, 91, 10)]
 
+	for saliency in saliency_methods:
+		if (saliency != "Random"):
+			saliency_ = np.load(saliency_dir + model_name + "_" + model_type + "_" + saliency + "_rescaled.npy")
 
+		else:
+			randomSaliencyIndex = random.randint(0, len(saliency_methods) - 2)
+			saliency_ = np.load(saliency_dir + model_name + "_" + model_type + "_" + saliency_methods[
+				randomSaliencyIndex] + "_rescaled.npy")
+			np.random.shuffle(np.transpose(saliency_))
+			np.save(saliency_dir + model_name + "_" + model_type + "_" + saliency + "_rescaled", saliency_)
 
+		saliency_ = saliency_.reshape(saliency_.shape[0], -1)
+		indexGrid = np.zeros((saliency_.shape[0], saliency_.shape[1], len(percentages)), dtype='object')
+		indexGrid[:, :, :] = np.nan
+		for i in range(saliency_.shape[0]):
+			indexes = Helper.getIndexOfAllhighestSalientValues(saliency_[i, :], percentages)
+			for l in range(len(indexes)):
+				indexGrid[i, :len(indexes[l]), l] = indexes[l]
+		for p, percentage in enumerate(percentages):
+			np.save(mask_dir + model_name + "_" + model_type + "_" + saliency + "_" + str(
+				percentage) + "_percentSal_rescaled", indexGrid[:, :, p])
 
+	print("Creating Masks for ", model_name + "_" + model_type)
 
-percentages=[ i for i in range(10,91,10)]
 
 def main(args,DatasetsTypes,DataGenerationTypes,models):
 	if  os.path.exists(args.ignore_list):
@@ -24,10 +45,8 @@ def main(args,DatasetsTypes,DataGenerationTypes,models):
 	else:
 		ignore_list=[]
 
-	Saliency_Methods = Helper.getSaliencyMethodsFromArgs(args)
-	Saliency_Methods.append("Random")
-
-	
+	saliency_methods = Helper.getSaliencyMethodsFromArgs(args)
+	saliency_methods.append("Random")
 
 	for x in range(len(DatasetsTypes)):
 		for y in range(len(DataGenerationTypes)):
@@ -45,27 +64,4 @@ def main(args,DatasetsTypes,DataGenerationTypes,models):
 					print("ignoring",args.DataName+"_"+models[m]  )
 					continue
 				else:
-
-				
-					for saliency in Saliency_Methods:
-						if(saliency!="Random"):
-							saliency_= np.load(args.Saliency_dir+modelName+"_"+models[m]+"_"+saliency+"_rescaled.npy")
-
-						else:
-							randomSaliencyIndex= random.randint(0,len(Saliency_Methods)-2)
-							saliency_= np.load(args.Saliency_dir+modelName+"_"+models[m]+"_"+Saliency_Methods[randomSaliencyIndex]+"_rescaled.npy")
-							np.random.shuffle(np.transpose(saliency_))
-							np.save(args.Saliency_dir+modelName+"_"+models[m]+"_"+saliency+"_rescaled",saliency_)
-
-
-						saliency_=saliency_.reshape(saliency_.shape[0],-1)
-						indexGrid=np.zeros((saliency_.shape[0],saliency_.shape[1],len(percentages)),dtype='object')
-						indexGrid[:,:,:]=np.nan
-						for i in range(saliency_.shape[0]):
-							indexes = Helper.getIndexOfAllhighestSalientValues(saliency_[i,:],percentages)
-							for l in range(len(indexes)):
-								indexGrid[i,:len(indexes[l]),l]=indexes[l]
-						for p,percentage in enumerate(percentages):
-							np.save(args.Mask_dir+modelName+"_"+models[m]+"_"+saliency+"_"+str(percentage)+"_percentSal_rescaled",indexGrid[:,:,p])
-
-					print("Creating Masks for ",modelName+"_"+models[m])
+					create_masks(saliency_methods, args.Saliency_dir, args.Mask_dir, models[m], modelName)
