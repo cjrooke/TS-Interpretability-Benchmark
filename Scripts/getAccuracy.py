@@ -73,7 +73,7 @@ def main(args):
 
 
                 pretrained_model = torch.load(saveModelBestName,map_location=device) 
-                Test_Acc  =   checkAccuracy(test_loaderRNN , pretrained_model, args)
+                Test_Acc  =   checkAccuracy(test_loaderRNN , pretrained_model, args.NumTimeSteps, args.NumFeatures)
                 print('{} {} model BestAcc {:.4f}'.format(args.DataName,models[m],Test_Acc))
               
 
