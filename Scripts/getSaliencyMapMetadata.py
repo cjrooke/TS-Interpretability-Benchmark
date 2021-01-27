@@ -21,6 +21,6 @@ def getSaliencyMapMetadata(saliency_dir, output_dir, specific_inputs=()):
 
 if __name__ == '__main__':
     SALIENCY_DIR = '../Results/Saliency_Values'
-    OUTPUT_DIR = '../Graphs/Saliency_Maps/Average_Maps'
+    OUTPUT_DIR = '../Graphs/Saliency_Maps/'
     SPECIFIC_INPUTS = [0]
     getSaliencyMapMetadata(SALIENCY_DIR, OUTPUT_DIR, SPECIFIC_INPUTS)

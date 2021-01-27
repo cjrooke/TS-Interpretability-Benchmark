@@ -32,12 +32,12 @@ def load_CSV(file,returnDF=False,Flip=False):
 	return data
 
 
-def givenAttGetRescaledSaliency(args,attributions,isTensor=True):
+def givenAttGetRescaledSaliency(num_timesteps, num_features, attributions, isTensor=True):
     if(isTensor):
         saliency = np.absolute(attributions.data.cpu().numpy())
     else:
         saliency = np.absolute(attributions)
-    saliency=saliency.reshape(-1,args.NumTimeSteps*args.NumFeatures)
+    saliency=saliency.reshape(-1, num_timesteps * num_features)
     rescaledSaliency=minmax_scale(saliency,axis=1)
     rescaledSaliency=rescaledSaliency.reshape(attributions.shape)
     return rescaledSaliency
@@ -108,7 +108,7 @@ def getIndexOfAllhighestSalientValues(array,percentageArray):
     X=1
     for percentage in percentageArray:
         actualPercentage=percentage/100
-        
+
         index_X=index[int(-1*X):]
 
         percentageDroped=np.sum(array[index_X])/totalSaliency
@@ -136,45 +136,41 @@ def getIndexOfAllhighestSalientValues(array,percentageArray):
     return indexes
 
 
-
-
-
-def generateNewSample(args):
-
-    if(args.DataGenerationProcess==None):
-        sample=np.random.normal(0,1,[args.NumTimeSteps,args.NumFeatures])
+def generateNewSample(data_generation_process, num_timesteps, num_features, sampler, frequency, kernel, ar_param, order, has_noise):
+    if data_generation_process is None:
+        sample=np.random.normal(0,1,[num_timesteps, num_features])
 
     else:
         time_sampler = ts.TimeSampler(stop_time=20)
-        sample=np.zeros([args.NumTimeSteps,args.NumFeatures])
+        sample=np.zeros([num_timesteps, num_features])
 
 
-        if(args.Sampler=="regular"):
-            time = time_sampler.sample_regular_time(num_points=args.NumTimeSteps*2, keep_percentage=50)
+        if sampler == "regular":
+            time = time_sampler.sample_regular_time(num_points=num_timesteps*2, keep_percentage=50)
         else:
-            time = time_sampler.sample_irregular_time(num_points=args.NumTimeSteps*2, keep_percentage=50)
+            time = time_sampler.sample_irregular_time(num_points=num_timesteps*2, keep_percentage=50)
 
-        
-        for  i in range(args.NumFeatures):
-            if(args.DataGenerationProcess== "Harmonic"):
-                 signal = ts.signals.Sinusoidal(frequency=args.Frequency)
-                
-            elif(args.DataGenerationProcess=="GaussianProcess"):
-                signal = ts.signals.GaussianProcess(kernel=args.Kernal, nu=3./2)
 
-            elif(args.DataGenerationProcess=="PseudoPeriodic"):
-                signal = ts.signals.PseudoPeriodic(frequency=args.Frequency, freqSD=0.01, ampSD=0.5)
+        for i in range(num_features):
+            if data_generation_process == "Harmonic":
+                 signal = ts.signals.Sinusoidal(frequency=frequency)
 
-            elif(args.DataGenerationProcess=="AutoRegressive"):
-                signal = ts.signals.AutoRegressive(ar_param=[args.ar_param])
+            elif data_generation_process == "GaussianProcess":
+                signal = ts.signals.GaussianProcess(kernel=kernel, nu=3./2)
 
-            elif(args.DataGenerationProcess=="CAR"):
-                signal = ts.signals.CAR(ar_param=args.ar_param, sigma=0.01)
+            elif data_generation_process == "PseudoPeriodic":
+                signal = ts.signals.PseudoPeriodic(frequency=frequency, freqSD=0.01, ampSD=0.5)
 
-            elif(args.DataGenerationProcess=="NARMA"):
-                signal = ts.signals.NARMA(order=args.Order)
+            elif data_generation_process == "AutoRegressive":
+                signal = ts.signals.AutoRegressive(ar_param=[ar_param])
 
-            if(args.hasNoise):
+            elif data_generation_process == "CAR":
+                signal = ts.signals.CAR(ar_param=ar_param, sigma=0.01)
+
+            elif data_generation_process == "NARMA":
+                signal = ts.signals.NARMA(order=order)
+
+            if has_noise:
                 noise= ts.noise.GaussianNoise(std=0.3)
                 timeseries = ts.TimeSeries(signal, noise_generator=noise)
             else:
@@ -185,10 +181,11 @@ def generateNewSample(args):
     return sample
 
 
-def maskData(args,data,mask,noise=False):
+def maskData(data_generation_process, num_timesteps, num_features, sampler, frequency, kernel, ar_param, order,
+             has_noise, data, mask, noise=False):
     newData= np.zeros((data.shape))
     if(noise):
-        noiseSample= generateNewSample(args)
+        noiseSample= generateNewSample(data_generation_process, num_timesteps, num_features, sampler, frequency, kernel, ar_param, order, has_noise)
         noiseSample=noiseSample.reshape(data.shape[1])
     for i in range(mask.shape[0]):
         newData[i,:]=data[i,:]
@@ -228,7 +225,7 @@ def getRowColMaskIndex(mask,rows,columns):
 
 
 def checkAccuracy(test_loader, model, num_timesteps, num_features, isCNN=False, returnLoss=False):
-    
+
     model.eval()
 
     correct = 0
@@ -247,10 +244,10 @@ def checkAccuracy(test_loader, model, num_timesteps, num_features, isCNN=False, 
         if(returnLoss):
             labels = labels.to(device)
             loss+=criterion(outputs, labels).data
-       
-        
+
+
         _, predicted = torch.max(outputs.data, 1)
-        
+
         total += labels.size(0)
         correct += (predicted == labels.to(device)).sum()
     if(returnLoss):
