@@ -152,7 +152,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                         FIT = FITExplainer(pretrained_model, ft_dim_last=True)
                         generator = JointFeatureGenerator(args.NumFeatures, latent_size=50, data='none')
                         # TODO: Increase epochs
-                        FIT.fit_generator(generator, train_loaderRNN, test_loaderRNN, n_epochs=1)
+                        FIT.fit_generator(generator, train_loaderRNN, test_loaderRNN, n_epochs=50)
 
                     idx=0
                     mask=np.zeros((args.NumTimeSteps, args.NumFeatures),dtype=int)

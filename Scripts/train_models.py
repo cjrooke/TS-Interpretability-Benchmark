@@ -70,7 +70,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
 					net=Transformer(args.NumFeatures, args.NumTimeSteps, args.n_layers, args.heads, args.rnndropout,args.num_classes,time=args.NumTimeSteps).to(device)
 				elif(models[m]=="TCN"):
 					num_chans = [args.hidden_size] * (args.levels - 1) + [args.NumTimeSteps]
-					net=TCN(args.NumFeatures,args.num_classes,num_chans,args.kernel_size,args.rnndropout,time=args.NumTimeSteps).to(device)
+					net=TCN(args.NumFeatures,args.num_classes,num_chans,args.kernel_size,args.rnndropout).to(device)
 
 				net.double()
 				optimizerTimeAtten = torch.optim.Adam(net.parameters(), lr=args.learning_rate)
