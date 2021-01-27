@@ -227,7 +227,7 @@ def getRowColMaskIndex(mask,rows,columns):
 
 
 
-def checkAccuracy(test_loader , model ,args,isCNN=False,returnLoss=False):
+def checkAccuracy(test_loader, model, num_timesteps, num_features, isCNN=False, returnLoss=False):
     
     model.eval()
 
@@ -237,11 +237,11 @@ def checkAccuracy(test_loader , model ,args,isCNN=False,returnLoss=False):
         loss=0
         criterion = nn.CrossEntropyLoss()
 
-    for  (samples, labels)  in test_loader:
-        if(isCNN):
-            images = samples.reshape(-1, 1,args.NumTimeSteps, args.NumFeatures).to(device)
+    for (samples, labels) in test_loader:
+        if isCNN:
+            images = samples.reshape(-1, 1, num_timesteps, num_features).to(device)
         else:
-            images = samples.reshape(-1, args.NumTimeSteps, args.NumFeatures).to(device)
+            images = samples.reshape(-1, num_timesteps, num_features).to(device)
 
         outputs = model(images)
         if(returnLoss):

@@ -110,7 +110,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
 
 
                     pretrained_model = torch.load(saveModelBestName,map_location=device) 
-                    Test_Unmasked_Acc  =   checkAccuracy(test_loaderRNN , pretrained_model, args)
+                    Test_Unmasked_Acc  =   checkAccuracy(test_loaderRNN , pretrained_model, args.NumTimeSteps, args.NumFeatures)
 
 
                     for s,saliency in enumerate(Saliency_Methods):
@@ -149,7 +149,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                                 Maskedtest_dataRNN = data_utils.TensorDataset(torch.from_numpy(MaskedTesting),torch.from_numpy( TestingLabel))
                                 Maskedtest_loaderRNN = data_utils.DataLoader(Maskedtest_dataRNN, batch_size=args.batch_size, shuffle=False)
 
-                                Test_Masked_Acc  =   checkAccuracy(Maskedtest_loaderRNN , pretrained_model,args)
+                                Test_Masked_Acc = checkAccuracy(Maskedtest_loaderRNN , pretrained_model, args.NumTimeSteps, args.NumFeatures)
                                 print('{} {} {} Acc {:.2f} Masked Acc {:.2f} Highest Value mask {}'.format(args.DataName,models[m],saliency,Test_Unmasked_Acc ,Test_Masked_Acc,maskedPercentage))
                                 Grid[s][i+1]=Test_Masked_Acc
                             end_percentage=time.time()
