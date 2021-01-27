@@ -3,17 +3,16 @@ name: ts-interpretability-benchmark
 channels:
   - pytorch
   - conda-forge
-  - defaults
 
 dependencies:
   - python>=3.6.3
   - torchvision
+  - pytorch
   - matplotlib
   - pandas
   - scikit-learn
   - symengine
-  - pytorch
-  - numpy
+  - imbalanced-learn
   - pip
   - pip:
       - timesynth
