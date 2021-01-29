@@ -332,4 +332,4 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                             fp.write(args.DataName+'_'+models[m]+'\n')
 
                 if args.plot:
-                    getSaliencyMapMetadata(args.Saliency_dir, args.Saliency_Maps_graphs_dir, [0])
+                    getSaliencyMapMetadata(args.Saliency_dir, args.Saliency_Maps_graphs_dir, [0, 10, 20, 30])

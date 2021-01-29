@@ -3,7 +3,7 @@ import pathlib
 
 import numpy as np
 
-from Scripts.Plotting import plotExampleBox
+from Plotting import plotExampleBox
 
 
 def getSaliencyMapMetadata(saliency_dir, output_dir, specific_inputs=()):
@@ -21,6 +21,6 @@ def getSaliencyMapMetadata(saliency_dir, output_dir, specific_inputs=()):
 
 if __name__ == '__main__':
     SALIENCY_DIR = '../Results/Saliency_Values'
-    OUTPUT_DIR = '../Graphs/Saliency_Maps/'
-    SPECIFIC_INPUTS = [0]
+    OUTPUT_DIR = '../Graphs/Saliency_Maps/Average_Maps'
+    SPECIFIC_INPUTS = [0, 10, 20, 30]
     getSaliencyMapMetadata(SALIENCY_DIR, OUTPUT_DIR, SPECIFIC_INPUTS)
