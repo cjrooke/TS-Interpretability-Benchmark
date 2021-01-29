@@ -37,6 +37,23 @@ from time_series_explainability.TSX.explainers import FITExplainer
 from Scripts.getSaliencyMapMetadata import getSaliencyMapMetadata
 
 
+class MockFitGaussianGenerator:
+    def eval(self):
+        pass
+
+    def to(self, device):
+        pass
+
+    def forward_conditional(self, past, current, sig_inds):
+        """AFAIK, sig_inds is a list of feature indices, and we want to mask all BUT those features"""
+        sig_inds_comp = list(set(range(past.shape[-2]))-set(sig_inds))
+        if len(current.shape) == 1:
+            current = current.unsqueeze(0)
+        full_sample = current.clone()
+        full_sample[:, sig_inds_comp] = torch.from_numpy(np.random.normal(0,1,[full_sample.shape[0], len(sig_inds_comp)])).float()
+        return full_sample, None
+
+
 def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_loader, test_loader, device, 
                          model_type, model_name, saliency_dir, tsr_graph_dir=None, tsr_inputs_to_graph=()):
     _, num_timesteps, num_features = test_shape
@@ -109,10 +126,11 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
     if run_fit:
         # TODO: Figure out a good set of hyperparameters for these
         rescaledFIT = np.zeros(test_shape)
-        FIT = FITExplainer(pretrained_model, ft_dim_last=True)
-        generator = JointFeatureGenerator(num_features, latent_size=50, data='none')
+        # TODO: Reenable real generator
+        FIT = FITExplainer(pretrained_model, generator=MockFitGaussianGenerator(), ft_dim_last=True)
+        # generator = JointFeatureGenerator(num_features, latent_size=100, data='none')
         # TODO: Increase epochs
-        FIT.fit_generator(generator, train_loader, test_loader, n_epochs=50)
+        # FIT.fit_generator(generator, train_loader, test_loader, n_epochs=500)
 
     idx = 0
     mask = np.zeros((num_timesteps, num_features), dtype=int)
@@ -195,7 +213,7 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             rescaledOcclusion[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
 
         if run_fit:
-            attributions = torch.from_numpy(FIT.attribute(input, labels))
+            attributions = torch.from_numpy(FIT.attribute(input, labels)).double()
             rescaledFIT[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
 
         idx += batch_size
