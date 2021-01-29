@@ -31,14 +31,14 @@ from captum.attr import (
 
 )
 
-from MNIST_Experiments.Scripts.interpret import getTwoStepRescaling
+from tsr import get_tsr_saliency
 from time_series_explainability.TSX.generator import JointFeatureGenerator
 from time_series_explainability.TSX.explainers import FITExplainer
 from Scripts.getSaliencyMapMetadata import getSaliencyMapMetadata
 
 
 def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_loader, test_loader, device, 
-                         model_type, model_name, saliency_dir):
+                         model_type, model_name, saliency_dir, tsr_graph_dir=None, tsr_inputs_to_graph=()):
     _, num_timesteps, num_features = test_shape
     
     run_grad = "Grad" in saliency_methods
@@ -138,18 +138,19 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = Grad.attribute(input, target=labels)
             rescaledGrad[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
         if run_grad_tsr:
-            TSR_attributions = getTwoStepRescaling(Grad, input, num_features, num_timesteps, labels)
-            rescaledGrad_TSR[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, TSR_attributions,
-                                                                                              isTensor=False)
+            rescaledGrad_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(Grad, input, num_features, num_timesteps, labels,
+                                                                            graph_dir=tsr_graph_dir,
+                                                                            graph_name=f'{model_name}_{model_type}_Grad_TSR',
+                                                                            inputs_to_graph=tsr_inputs_to_graph, cur_batch=i)
 
         if run_ig:
             attributions = IG.attribute(input, baselines=baseline_single, target=labels)
             rescaledIG[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
         if run_ig_tsr:
-            TSR_attributions = getTwoStepRescaling(IG, input, num_features, num_timesteps, labels,
-                                                   hasBaseline=baseline_single)
-            rescaledIG_TSR[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, TSR_attributions,
-                                                                                            isTensor=False)
+            rescaledIG_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(IG, input, num_features, num_timesteps, labels,
+                                                                          baseline=baseline_single, graph_dir=tsr_graph_dir,
+                                                                          graph_name=f'{model_name}_{model_type}_IG_TSR',
+                                                                          inputs_to_graph=tsr_inputs_to_graph, cur_batch=i)
 
         if run_dl:
             attributions = DL.attribute(input, baselines=baseline_single, target=labels)
@@ -163,10 +164,10 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = DLS.attribute(input, baselines=baseline_multiple, target=labels)
             rescaledDLS[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
         if run_dls_tsr:
-            TSR_attributions = getTwoStepRescaling(DLS, input, num_features, num_timesteps, labels,
-                                                   hasBaseline=baseline_multiple)
-            rescaledDLS_TSR[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, TSR_attributions,
-                                                                                             isTensor=False)
+            rescaledDLS_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(DLS, input, num_features, num_timesteps, labels,
+                                                                          baseline=baseline_multiple, graph_dir=tsr_graph_dir,
+                                                                          graph_name=f'{model_name}_{model_type}_DLS_TSR',
+                                                                           inputs_to_graph=tsr_inputs_to_graph, cur_batch=i)
 
         if run_sg:
             attributions = SG.attribute(input, target=labels)
@@ -316,7 +317,8 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
 
                 if Test_Acc >= 0:
                     run_saliency_methods(Helper.getSaliencyMethodsFromArgs(args), pretrained_model, TestingRNN.shape,
-                                         train_loaderRNN, test_loaderRNN, device, models[m], modelName, args.Saliency_dir)
+                                         train_loaderRNN, test_loaderRNN, device, models[m], modelName, args.Saliency_dir,
+                                         args.Saliency_Maps_graphs_dir + '/TSR_attributions', [0, 10, 20, 30])
 
                 else:
                     logging.basicConfig(filename=args.log_file,level=logging.DEBUG)
@@ -331,5 +333,5 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
                         with open(args.ignore_list, "a") as fp:
                             fp.write(args.DataName+'_'+models[m]+'\n')
 
-                if args.plot:
-                    getSaliencyMapMetadata(args.Saliency_dir, args.Saliency_Maps_graphs_dir, [0, 10, 20, 30])
+    if args.plot:
+        getSaliencyMapMetadata(args.Saliency_dir, args.Saliency_Maps_graphs_dir, [0, 10, 20, 30])
