@@ -205,7 +205,6 @@ class Transformer(nn.Module):
         super().__init__()
         self.encoder = Encoder(input_size,seq_len, N, heads, dropout)
         self.out = nn.Linear(input_size, num_classes) 
-        self.tempmaxpool = nn.MaxPool1d(time)
     def forward(self, src,returnWeights=False):
         mask= creatMask(src.shape[0],src.shape[1]).to(device)
         # print(src.shape)
@@ -214,7 +213,7 @@ class Transformer(nn.Module):
         else:
             e_outputs = self.encoder(src,mask)
 
-        e_outputs=self.tempmaxpool(e_outputs.transpose(1, 2)).squeeze(-1)
+        e_outputs, _ = torch.max(e_outputs.transpose(1, 2), -1)
         output = self.out(e_outputs)
         output =F.softmax(output, dim=1)
         if(returnWeights):
