@@ -12,6 +12,10 @@ def createSample(args,Target,start_ImpTS,end_ImpTS,start_ImpFeat,end_ImpFeat):
 		sample[start_ImpTS:end_ImpTS,start_ImpFeat:end_ImpFeat]=Features
 		# print(start_ImpFeat,end_ImpFeat)
 
+	elif args.DataGenerationProcess=="Constant":
+		sample = np.zeros((args.NumTimeSteps, args.NumFeatures))
+		sample[start_ImpTS:end_ImpTS, start_ImpFeat:end_ImpFeat] += Target
+
 	else:
 		time_sampler = ts.TimeSampler(stop_time=20)
 		sample=np.zeros([args.NumTimeSteps,args.NumFeatures])

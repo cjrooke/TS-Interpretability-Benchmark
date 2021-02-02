@@ -37,12 +37,24 @@ from time_series_explainability.TSX.explainers import FITExplainer
 from Scripts.getSaliencyMapMetadata import getSaliencyMapMetadata
 
 
-class MockFitGaussianGenerator:
+class MockFitGenerator:
+    def __init__(self, model_name):
+        # TODO: Refac top level args to make this easier
+        self.data_type = model_name.split("_")[-1]
+
     def eval(self):
         pass
 
     def to(self, device):
         pass
+
+    def generate_data(self, shape):
+        if self.data_type == "Box":
+            return np.random.normal(0, 1, shape)
+        elif self.data_type == "Constant":
+            return np.zeros(shape)
+        else:
+            raise Exception(f"Data type {self.data_type} not supported in mock generator")
 
     def forward_conditional(self, past, current, sig_inds):
         """AFAIK, sig_inds is a list of feature indices, and we want to mask all BUT those features"""
@@ -50,7 +62,7 @@ class MockFitGaussianGenerator:
         if len(current.shape) == 1:
             current = current.unsqueeze(0)
         full_sample = current.clone()
-        full_sample[:, sig_inds_comp] = torch.from_numpy(np.random.normal(0,1,[full_sample.shape[0], len(sig_inds_comp)])).float()
+        full_sample[:, sig_inds_comp] = torch.from_numpy(self.generate_data((full_sample.shape[0], len(sig_inds_comp)))).float()
         return full_sample, None
 
 
@@ -127,7 +139,7 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
         # TODO: Figure out a good set of hyperparameters for these
         rescaledFIT = np.zeros(test_shape)
         # TODO: Reenable real generator
-        FIT = FITExplainer(pretrained_model, generator=MockFitGaussianGenerator(), ft_dim_last=True)
+        FIT = FITExplainer(pretrained_model, generator=MockFitGenerator(model_name), ft_dim_last=True)
         # generator = JointFeatureGenerator(num_features, latent_size=100, data='none')
         # TODO: Increase epochs
         # FIT.fit_generator(generator, train_loader, test_loader, n_epochs=500)

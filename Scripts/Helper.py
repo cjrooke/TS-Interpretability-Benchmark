@@ -140,6 +140,9 @@ def generateNewSample(data_generation_process, num_timesteps, num_features, samp
     if data_generation_process is None:
         sample=np.random.normal(0,1,[num_timesteps, num_features])
 
+    elif data_generation_process == "Constant":
+        sample=np.zeros([num_timesteps, num_features])
+
     else:
         time_sampler = ts.TimeSampler(stop_time=20)
         sample=np.zeros([num_timesteps, num_features])
