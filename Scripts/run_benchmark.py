@@ -10,6 +10,8 @@ from getMaskedAccuracy import main as getMaskedAccuracy
 from getPrecisionRecall import main as getPrecisionRecall
 from getAccuracyMetrics import main as getAccuracyMetrics
 from getFeatureTimePrecisionRecall import main as getFeatureTimePrecisionRecall
+from getSaliencyTop1Accuracy import getSaliencyTop1Accuracy
+from Helper import getSaliencyMethodsFromArgs
 import timesynth as ts
 import numpy as np
 
@@ -58,6 +60,12 @@ def main(args):
 
 	#Get Saliency maps
 	interpret(args,DatasetsTypes,DataGenerationTypes,models,device)
+
+	# Get "Top1" Accuracy of Saliency Methods
+	for i in range(len(DatasetsTypes)):
+		if ImpTimeSteps[i] == ImpFeatures[i] == 1:
+			getSaliencyTop1Accuracy(DatasetsTypes[i], DataGenerationTypes, models, getSaliencyMethodsFromArgs(args),
+									StartImpTimeSteps[i], StartImpFeatures[i], args.Saliency_dir)
 
 	#create Masks
 	createMasks(args,DatasetsTypes,DataGenerationTypes,models)
