@@ -2,7 +2,7 @@ import torch
 import argparse
 import sys
 # TODO: Find a better way to do this
-sys.path.append('../time_series_explainability')
+sys.path.append('../../time_series_explainability')
 from torch.autograd import Variable
 import torch.utils.data as data_utils
 import numpy as np
