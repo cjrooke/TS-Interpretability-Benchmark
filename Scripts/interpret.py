@@ -138,7 +138,7 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = Grad.attribute(input, target=labels)
             rescaledGrad[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
         if run_grad_tsr:
-            rescaledGrad_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(Grad, input, num_features, num_timesteps, labels,
+            rescaledGrad_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(Grad, input, labels,
                                                                             graph_dir=tsr_graph_dir,
                                                                             graph_name=f'{model_name}_{model_type}_Grad_TSR',
                                                                             inputs_to_graph=tsr_inputs_to_graph, cur_batch=i)
@@ -147,7 +147,7 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = IG.attribute(input, baselines=baseline_single, target=labels)
             rescaledIG[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
         if run_ig_tsr:
-            rescaledIG_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(IG, input, num_features, num_timesteps, labels,
+            rescaledIG_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(IG, input, labels,
                                                                           baseline=baseline_single, graph_dir=tsr_graph_dir,
                                                                           graph_name=f'{model_name}_{model_type}_IG_TSR',
                                                                           inputs_to_graph=tsr_inputs_to_graph, cur_batch=i)
@@ -164,7 +164,7 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = DLS.attribute(input, baselines=baseline_multiple, target=labels)
             rescaledDLS[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
         if run_dls_tsr:
-            rescaledDLS_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(DLS, input, num_features, num_timesteps, labels,
+            rescaledDLS_TSR[idx:idx + batch_size, :, :] = get_tsr_saliency(DLS, input, labels,
                                                                           baseline=baseline_multiple, graph_dir=tsr_graph_dir,
                                                                           graph_name=f'{model_name}_{model_type}_DLS_TSR',
                                                                            inputs_to_graph=tsr_inputs_to_graph, cur_batch=i)
