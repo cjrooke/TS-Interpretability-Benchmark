@@ -1,11 +1,10 @@
-import sys
-import argparse
-import Helper
-import numpy as np
 import time
-import random
 import os
+
+import numpy as np
 import pandas as pd
+
+from . import Helper
 
 
 def get_precision_recall(saliency_methods, data_name, model_type, model_name, num_timesteps, num_features, saliency_dir, 

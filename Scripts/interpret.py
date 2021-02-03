@@ -1,22 +1,12 @@
-import torch
-import argparse
-import sys
-# TODO: Find a better way to do this
-sys.path.append('../../time_series_explainability')
-from torch.autograd import Variable
-import torch.utils.data as data_utils
-import numpy as np
-import Helper
-from Helper import checkAccuracy
-import random
-from sklearn.preprocessing import StandardScaler,MinMaxScaler
-from Plotting import *
 import os
 import logging
-
 import warnings
 warnings.filterwarnings("ignore")
 
+import torch
+from torch.autograd import Variable
+import torch.utils.data as data_utils
+from sklearn.preprocessing import MinMaxScaler
 from captum.attr import (
     GradientShap,
     DeepLift,
@@ -31,10 +21,13 @@ from captum.attr import (
 
 )
 
-from tsr import get_tsr_saliency
-from time_series_explainability.TSX.generator import JointFeatureGenerator
-from time_series_explainability.TSX.explainers import FITExplainer
-from Scripts.getSaliencyMapMetadata import getSaliencyMapMetadata
+from .tsr import get_tsr_saliency
+from . import Helper
+from .Helper import checkAccuracy
+from .getSaliencyMapMetadata import getSaliencyMapMetadata
+from .Plotting.plot import *
+# from FIT.TSX.generator import JointFeatureGenerator
+# from FIT.TSX.explainers import FITExplainer
 
 
 def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_loader, test_loader, device, 

@@ -1,24 +1,19 @@
-import torch
 import sys
 import argparse
-from create_empty_dirs import create_empty_dirs
-from createDatasets import createDatasets
-from train_models import main as train_models
-from interpret import main as interpret
-from createMasks import main as createMasks 
-from getMaskedAccuracy import main as getMaskedAccuracy
-from getPrecisionRecall import main as getPrecisionRecall
-from getAccuracyMetrics import main as getAccuracyMetrics
-from getFeatureTimePrecisionRecall import main as getFeatureTimePrecisionRecall
-import timesynth as ts
-import numpy as np
 
+import torch
 
-
-
+from .create_empty_dirs import create_empty_dirs
+from .createDatasets import createDatasets
+from .train_models import main as train_models
+from .interpret import main as interpret
+from .createMasks import main as createMasks
+from .getMaskedAccuracy import main as getMaskedAccuracy
+from .getPrecisionRecall import main as getPrecisionRecall
+from .getAccuracyMetrics import main as getAccuracyMetrics
+from .getFeatureTimePrecisionRecall import main as getFeatureTimePrecisionRecall
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 
 
 DatasetsTypes= ["Middle", "SmallMiddle", "Moving_Middle", "Moving_SmallMiddle", "RareTime", "Moving_RareTime", "RareFeature","Moving_RareFeature","PostionalTime", "PostionalFeature"]
@@ -78,10 +73,6 @@ def main(args):
 	args.Feature_PrecisionRecall=True
 	args.Time_PrecisionRecall=True
 	getAccuracyMetrics(args,DatasetsTypes,DataGenerationTypes,models)
-
-
-
-
 
 
 def parse_arguments(argv):
@@ -162,13 +153,15 @@ def parse_arguments(argv):
 	parser.add_argument('--FeaturePermutationFlag', type=bool, default=True)
 	parser.add_argument('--FeatureAblationFlag', type=bool, default=True)
 	parser.add_argument('--OcclusionFlag', type=bool, default=True)
-	parser.add_argument('--FITFlag', type=bool, default=True)
 
 	parser.add_argument('--GradTSRFlag', type=bool, default=True)
 	parser.add_argument('--IGTSRFlag', type=bool, default=True)
 	parser.add_argument('--DLSTSRFlag', type=bool, default=True)
 
+	parser.add_argument('--FITFlag', type=bool, default=False)
+
 	return parser.parse_args()
+
 
 if __name__ == '__main__':
 	main(parse_arguments(sys.argv[1:]))

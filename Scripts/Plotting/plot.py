@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
-import timesynth as ts
 import numpy as np
-
-
-
 
 
 def plotExampleBox(input, saveLocation, show=False,greyScale=False,flip=False):

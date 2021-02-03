@@ -1,16 +1,15 @@
-import sys
 import torch
 from torch.autograd import Variable
 import torch.utils.data as data_utils
 import numpy as np
-from sklearn.preprocessing import StandardScaler,MinMaxScaler
-from Helper import checkAccuracy 
-sys.path.append('./Models/')
-from LSTM import LSTM
-from Transformer import Transformer
-from LSTMWithInputCellAttention import LSTMWithInputCellAttention
-from TCN import TCN
+from sklearn.preprocessing import MinMaxScaler
 import torch.nn as nn
+
+from .Helper import checkAccuracy
+from .Models.LSTM import LSTM
+from .Models.Transformer import Transformer
+from .Models.LSTMWithInputCellAttention import LSTMWithInputCellAttention
+from .Models.TCN import TCN
 
 
 def train_model(model, model_type, model_name, criterion, train_loader, test_loader, device, num_timesteps,

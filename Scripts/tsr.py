@@ -3,8 +3,8 @@ import pathlib
 import numpy as np
 from sklearn import preprocessing
 
-from Helper import givenAttGetRescaledSaliency
-from Plotting import plotExampleBox
+from .Helper import givenAttGetRescaledSaliency
+from .Plotting.plot import plotExampleBox
 
 
 def getTwoStepRescaling(Grad, input, TestingLabel, hasBaseline=None, hasFeatureMask=None,
@@ -13,7 +13,7 @@ def getTwoStepRescaling(Grad, input, TestingLabel, hasBaseline=None, hasFeatureM
     assignment = input[0, 0, 0]
     timeGrad = np.zeros((batch_size, sequence_length))
     inputGrad = np.zeros((batch_size, input_size))
-    newGrad = np.zeros_like(input)
+    newGrad = np.zeros(input.shape)
     if hasBaseline is None:
         ActualGrad = Grad.attribute(input, target=TestingLabel).data.cpu().numpy()
     else:

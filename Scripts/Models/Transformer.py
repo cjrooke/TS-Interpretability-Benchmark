@@ -1,11 +1,13 @@
-import torch
-import torch.nn as nn 
 import copy
 import math
+
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 def creatMask(batch,sequence_length):
     mask = torch.zeros(batch,sequence_length,sequence_length)

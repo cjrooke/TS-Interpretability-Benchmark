@@ -1,22 +1,12 @@
-import sys
-import argparse
-import Helper
 import numpy as np
 import time
-import random
 import os
-import pandas as pd
 
+from . import Helper
 
-
-
-
-
-
-
-maskedPercentages=[ i for i in range(0,101,10)]
 
 def main(args,DatasetsTypes,DataGenerationTypes,models):
+    maskedPercentages = [i for i in range(0, 101, 10)]
 
     if  os.path.exists(args.ignore_list):
         f = open(args.ignore_list, 'r+')

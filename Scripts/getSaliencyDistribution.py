@@ -1,21 +1,17 @@
 import sys
 import argparse
-import Helper
-import numpy as np
 import time
 
+import numpy as np
 
-
+from . import Helper
 
 DatasetsTypes= ["Moving_SmallMiddle","Middle","SmallMiddle", "Moving_Middle",  "RareTime", "Moving_RareTime", "RareFeature","Moving_RareFeature","PostionalTime", "PostionalFeature"]
 DataGenerationTypes=[None,"Harmonic", "GaussianProcess", "PseudoPeriodic", "AutoRegressive" ,"CAR","NARMA" ]
 
 models=["LSTMWithInputCellAttention" ,"TCN","Transformer","LSTM"]
 
-
-
 maskedPercentages=[ i for i in range(0,101,10)]
-
 
 
 def main(args):

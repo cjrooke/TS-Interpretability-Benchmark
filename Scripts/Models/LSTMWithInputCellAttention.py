@@ -1,24 +1,19 @@
+from typing import *
+from enum import IntEnum
+
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 from torch.nn import Parameter
-
-from typing import *
 import torch.nn.functional as F
-
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 batch_first =True
 
 
-
-from enum import IntEnum
 class Dim(IntEnum):
     batch = 0
     seq = 1
     feature = 2
- 
-
 
 class InputCellAttention(nn.Module):
 

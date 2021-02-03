@@ -4,10 +4,10 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from imblearn.under_sampling import RandomUnderSampler
 
-from Models.TCN import TCN
-from train_models import train_model
-from interpret import run_saliency_methods
-from getSaliencyMapMetadata import getSaliencyMapMetadata
+from .Models.TCN import TCN
+from .train_models import train_model
+from .interpret import run_saliency_methods
+from .getSaliencyMapMetadata import getSaliencyMapMetadata
 
 
 def get_data(path):

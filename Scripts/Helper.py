@@ -1,24 +1,21 @@
+import itertools
+import time
+
 import numpy as np
 import pandas as pd
 from torch.autograd import Variable
-import itertools
 import torch
 import torch.nn as nn
 from  sklearn.preprocessing import minmax_scale
-# Device configuration
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-import time
 import torch.nn.functional as F
-import sys
-sys.path.append('../')
 import torch.utils.data as data_utils
 import timesynth as ts
 
-
+# Device configuration
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 ################################## General Helper Function ##############################
-
 
 
 def load_CSV(file,returnDF=False,Flip=False):

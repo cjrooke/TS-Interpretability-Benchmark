@@ -3,7 +3,7 @@ import pathlib
 
 import numpy as np
 
-from Plotting import plotExampleBox
+from .Plotting.plot import plotExampleBox
 
 
 def getSaliencyMapMetadata(saliency_dir, output_dir, specific_inputs=()):

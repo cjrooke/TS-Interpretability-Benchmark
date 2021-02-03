@@ -1,10 +1,8 @@
-import sys
-import argparse
-import Helper
 import numpy as np
 import random
 import os
 
+from . import Helper
 
 def create_masks(saliency_methods, saliency_dir, mask_dir, model_type, model_name):
 	percentages = [i for i in range(10, 91, 10)]

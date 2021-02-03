@@ -2,7 +2,9 @@ import timesynth as ts
 import numpy as np
 import sys
 import argparse
-from Plotting import *
+
+from .Plotting.plot import *
+
 
 def createSample(args,Target,start_ImpTS,end_ImpTS,start_ImpFeat,end_ImpFeat):
 

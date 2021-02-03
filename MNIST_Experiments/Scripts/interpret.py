@@ -8,7 +8,7 @@ import argparse
 import random
 from MNIST_Experiments.Scripts.utils import data_generator
 import Helper
-from Plotting import plotExampleBox
+from Plotting.plot import plotExampleBox
 from torch.autograd import Variable
 from  sklearn import preprocessing
 

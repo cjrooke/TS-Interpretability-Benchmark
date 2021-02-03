@@ -1,18 +1,12 @@
-import sys
 import torch
-import torch.nn as nn
-from torch.autograd import Variable
-import argparse
-import Helper
 import torch.utils.data as data_utils
-import numpy as np
-from sklearn.preprocessing import StandardScaler ,MinMaxScaler
-from Helper import  checkAccuracy
+from sklearn.preprocessing import MinMaxScaler
 import os
 import time
-import random
 
-from Plotting import *
+from .Plotting.plot import *
+from . import Helper
+from .Helper import checkAccuracy
 
 
 def get_masked_accuracy(saliency_methods, masked_acc_dir, data_name, model_type, model_name, device, test_loader,
