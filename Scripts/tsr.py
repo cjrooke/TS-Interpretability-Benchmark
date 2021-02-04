@@ -7,26 +7,40 @@ from .Helper import givenAttGetRescaledSaliency
 from .Plotting.plot import plotExampleBox
 
 
-def getTwoStepRescaling(Grad, input, TestingLabel, hasBaseline=None, hasFeatureMask=None,
+def get_attribution(saliency, input, label, baselines, feature_mask, sliding_window_shape):
+    if baselines is None:
+        return saliency.attribute(input, target=label).data.cpu().numpy()
+    else:
+        if feature_mask is None:
+            return saliency.attribute(input, baselines=baselines, target=label, feature_mask=feature_mask).data.cpu().numpy()
+        elif sliding_window_shape is not None:
+            return saliency.attribute(input, sliding_window_shapes=sliding_window_shape, baselines=baselines, target=label).data.cpu().numpy()
+        else:
+            return saliency.attribute(input, baselines=baselines, target=label).data.cpu().numpy()
+
+
+def getTwoStepRescaling(saliency, input, TestingLabel, hasBaseline=None, hasFeatureMask=None,
                         hasSliding_window_shapes=None, return_time_ft_contributions=False, ft_dim_last=True):
     batch_size, sequence_length, input_size = input.shape if ft_dim_last else (input.shape[0], input.shape[2], input.shape[1])
     assignment = input[0, 0, 0]
     timeGrad = np.zeros((batch_size, sequence_length))
     inputGrad = np.zeros((batch_size, input_size))
     newGrad = np.zeros(input.shape)
-    if hasBaseline is None:
-        ActualGrad = Grad.attribute(input, target=TestingLabel).data.cpu().numpy()
-    else:
-        if (hasFeatureMask != None):
-            ActualGrad = Grad.attribute(input, baselines=hasBaseline, target=TestingLabel,
-                                        feature_mask=hasFeatureMask).data.cpu().numpy()
-        elif (hasSliding_window_shapes != None):
-            ActualGrad = Grad.attribute(input, sliding_window_shapes=hasSliding_window_shapes, baselines=hasBaseline,
-                                        target=TestingLabel).data.cpu().numpy()
-        else:
-            ActualGrad = Grad.attribute(input, baselines=hasBaseline, target=TestingLabel).data.cpu().numpy()
+
+    ActualGrad = get_attribution(saliency, input, TestingLabel, hasBaseline, hasFeatureMask, hasSliding_window_shapes)
 
     timeGrad[:] = np.mean(np.absolute(ActualGrad), axis=2 if ft_dim_last else 1)
+
+    # for t in range(sequence_length):
+    #     newInput = input.clone()
+    #     if ft_dim_last:
+    #         newInput[:,t,:]=assignment
+    #     else:
+    #         newInput[:,:,t]=assignment
+    #
+    #     timeGrad_perTime = get_attribution(saliency, newInput, TestingLabel, hasBaseline, hasFeatureMask, hasSliding_window_shapes)
+    #     timeGrad_perTime= np.absolute(ActualGrad - timeGrad_perTime)
+    #     timeGrad[:,t] = np.sum(timeGrad_perTime, axis=(1, 2))
 
     timeContribution = preprocessing.minmax_scale(timeGrad, axis=1)
     # meanTime = np.quantile(timeContribution, .55)
@@ -42,20 +56,7 @@ def getTwoStepRescaling(Grad, input, TestingLabel, hasBaseline=None, hasFeatureM
             i1, i2 = (t, c) if ft_dim_last else (c, t)
             newInput[:, i1, i2] = assignment
 
-            if hasBaseline is None:
-                inputGrad_perInput = Grad.attribute(newInput, target=TestingLabel).data.cpu().numpy()
-            else:
-                if hasFeatureMask is not None:
-                    inputGrad_perInput = Grad.attribute(newInput, baselines=hasBaseline, target=TestingLabel,
-                                                        feature_mask=hasFeatureMask).data.cpu().numpy()
-                elif hasSliding_window_shapes is not None:
-                    inputGrad_perInput = Grad.attribute(newInput, sliding_window_shapes=hasSliding_window_shapes,
-                                                        baselines=hasBaseline,
-                                                        target=TestingLabel).data.cpu().numpy()
-                else:
-                    inputGrad_perInput = Grad.attribute(newInput, baselines=hasBaseline,
-                                                        target=TestingLabel).data.cpu().numpy()
-
+            inputGrad_perInput = get_attribution(saliency, newInput, TestingLabel, hasBaseline, hasFeatureMask, hasSliding_window_shapes)
             inputGrad_perInput = np.absolute(ActualGrad - inputGrad_perInput)
             inputGrad[:, c] = np.sum(inputGrad_perInput, axis=(1, 2))
         featureContribution = preprocessing.minmax_scale(inputGrad, axis=-1)
