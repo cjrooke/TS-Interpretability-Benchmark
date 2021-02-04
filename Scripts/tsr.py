@@ -11,7 +11,7 @@ def get_attribution(saliency, input, label, baselines, feature_mask, sliding_win
     if baselines is None:
         return saliency.attribute(input, target=label).data.cpu().numpy()
     else:
-        if feature_mask is None:
+        if feature_mask is not None:
             return saliency.attribute(input, baselines=baselines, target=label, feature_mask=feature_mask).data.cpu().numpy()
         elif sliding_window_shape is not None:
             return saliency.attribute(input, sliding_window_shapes=sliding_window_shape, baselines=baselines, target=label).data.cpu().numpy()
