@@ -17,7 +17,7 @@ def train_model(model, model_type, model_name, criterion, train_loader, test_loa
 	model.double()
 	optimizerTimeAtten = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-	saveModelName = "../Models/" + model_type + "/" + model_name
+	saveModelName = "Models/" + model_type + "/" + model_name
 	saveModelBestName = saveModelName + "_BEST.pkl"
 	saveModelLastName = saveModelName + "_LAST.pkl"
 

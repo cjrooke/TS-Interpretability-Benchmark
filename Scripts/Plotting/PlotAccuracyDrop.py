@@ -2,12 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import argparse
-sys.path.append('../')
-import Helper
 
-
-
-
+from .. import Helper
 
 def getSamples(args,fileName):
 
@@ -189,12 +185,12 @@ def parse_arguments(argv):
     parser.add_argument('--NumTimeSteps',type=int,default=50)
     parser.add_argument('--NumFeatures',type=int,default=50)
     parser.add_argument('--DataGenerationProcess', type=str, default=None)
-    parser.add_argument('--data_dir', type=str, default="../../Datasets/")
-    parser.add_argument('--Mask_dir', type=str, default='../../Results/Saliency_Masks/')
-    parser.add_argument('--Masked_Acc_dir', type=str, default= "../../Results/Masked_Accuracy/")
+    parser.add_argument('--data_dir', type=str, default="Datasets/")
+    parser.add_argument('--Mask_dir', type=str, default='Results/Saliency_Masks/')
+    parser.add_argument('--Masked_Acc_dir', type=str, default= "Results/Masked_Accuracy/")
 
-    parser.add_argument('--Saliency_Distribution_dir', type=str, default= "../../Results/Saliency_Distribution/")
-    parser.add_argument('--Saliency_dir', type=str, default='../../Results/Saliency_Values/')
+    parser.add_argument('--Saliency_Distribution_dir', type=str, default= "Results/Saliency_Distribution/")
+    parser.add_argument('--Saliency_dir', type=str, default='Results/Saliency_Values/')
 
 
 
@@ -210,7 +206,7 @@ def parse_arguments(argv):
     parser.add_argument('--OcclusionFlag', type=bool, default=True)
 
 
-    parser.add_argument('--Graph_dir', type=str, default='../../Graphs/Accuracy_Drop/')
+    parser.add_argument('--Graph_dir', type=str, default='Graphs/Accuracy_Drop/')
 
     return  parser.parse_args()
 

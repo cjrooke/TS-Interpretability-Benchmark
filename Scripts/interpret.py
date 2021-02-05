@@ -299,7 +299,7 @@ def main(args,DatasetsTypes,DataGenerationTypes,models,device):
 
 
 
-                saveModelName="../Models/"+models[m]+"/"+modelName
+                saveModelName="Models/"+models[m]+"/"+modelName
                 saveModelBestName =saveModelName +"_BEST.pkl"
 
 

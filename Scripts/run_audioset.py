@@ -52,8 +52,8 @@ def single_class_loader_from_path(path, batch_size, classify_on, balance=False):
     return DataLoader(dataset, batch_size=batch_size), len(y)
 
 
-train_path = '../Audioset/packed_features/bal_train.h5'
-test_path = '../Audioset/packed_features/eval.h5'
+train_path = 'Audioset/packed_features/bal_train.h5'
+test_path = 'Audioset/packed_features/eval.h5'
 data_name = 'Audioset'
 
 batch_size = 32
@@ -73,8 +73,8 @@ num_epochs = 500
 learning_rate = 0.001
 
 saliency_methods = ['Grad', 'Grad_TSR', 'IG', 'IG_TSR', 'DLS', 'DLS_TSR', 'FIT']
-saliency_dir = '../Audioset/Saliency_Values/'
-saliency_maps_graphs_dir = '../Audioset/Saliency_Maps/'
+saliency_dir = 'Audioset/Saliency_Values/'
+saliency_maps_graphs_dir = 'Audioset/Saliency_Maps/'
 
 
 def main():

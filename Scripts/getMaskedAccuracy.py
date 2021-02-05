@@ -28,7 +28,7 @@ def get_masked_accuracy(saliency_methods, masked_acc_dir, data_name, model_type,
     for mask in maskedPercentages:
         columns.append(str(mask))
 
-    savemodel_name = "../Models/" + model_type + "/" + model_name
+    savemodel_name = "Models/" + model_type + "/" + model_name
     saveModelBestName = savemodel_name + "_BEST.pkl"
 
     pretrained_model = torch.load(saveModelBestName, map_location=device)
