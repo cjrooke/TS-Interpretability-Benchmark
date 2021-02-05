@@ -1,6 +1,7 @@
 import pathlib
 
 import numpy as np
+import torch
 from sklearn import preprocessing
 
 from .Helper import givenAttGetRescaledSaliency
@@ -62,9 +63,12 @@ def getTwoStepRescaling(saliency, input, TestingLabel, hasBaseline=None, hasFeat
         featureContribution = preprocessing.minmax_scale(inputGrad, axis=-1)
         feature_contributions[:, t, :] = featureContribution
 
+        alpha = 0
+
         for c in range(input_size):
-            i1, i2 = (t, c) if ft_dim_last else (c, t)
-            newGrad[:, i1, i2] = timeContribution[:, t] * featureContribution[:, c]
+            for batch in range(batch_size):
+                i1, i2 = (t, c) if ft_dim_last else (c, t)
+                newGrad[batch, i1, i2] = timeContribution[batch, t] * featureContribution[batch, c] if timeContribution[batch, t] > alpha else 0
 
     return newGrad, time_contributions, feature_contributions if return_time_ft_contributions else newGrad
 
