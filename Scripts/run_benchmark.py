@@ -2,6 +2,7 @@ import sys
 import argparse
 
 import torch
+import numpy as np
 
 from .create_empty_dirs import create_empty_dirs
 from .createDatasets import createDatasets
@@ -164,4 +165,6 @@ def parse_arguments(argv):
 
 
 if __name__ == '__main__':
+	np.random.seed(0)
+	torch.manual_seed(0)
 	main(parse_arguments(sys.argv[1:]))
