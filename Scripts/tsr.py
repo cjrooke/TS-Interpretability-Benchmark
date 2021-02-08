@@ -1,7 +1,6 @@
 import pathlib
 
 import numpy as np
-import torch
 from sklearn import preprocessing
 
 from .Helper import givenAttGetRescaledSaliency
@@ -73,11 +72,40 @@ def getTwoStepRescaling(saliency, input, TestingLabel, hasBaseline=None, hasFeat
     return newGrad, time_contributions, feature_contributions if return_time_ft_contributions else newGrad
 
 
+def tsr_over_time(saliency, input, labels, baseline=None, feature_mask=None, sliding_window_shapes=None,
+                  return_time_ft_contributions=False, ft_dim_last=True):
+    batch_size, num_timesteps, num_features = input.shape if ft_dim_last else (input.shape[0], input.shape[2], input.shape[1])
+
+    saliency_over_all_time = np.empty((num_timesteps,) + input.shape)
+    time_contributions = np.empty((num_timesteps, batch_size, num_timesteps, num_features))
+    ft_contributions = np.empty((num_timesteps, batch_size, num_timesteps, num_features))
+
+    for t in range(num_timesteps):
+        input_until_t = input[:, :t + 1, :] if ft_dim_last else input[:, :, :t + 1]
+        partial_saliency, partial_time_cont, partial_ft_cont = getTwoStepRescaling(saliency, input_until_t, labels, baseline, feature_mask,
+                            sliding_window_shapes, return_time_ft_contributions, ft_dim_last)
+        if ft_dim_last:
+            saliency_over_all_time[t, :, :t + 1, :] = partial_saliency
+        else:
+            saliency_over_all_time[t, :, :, :t + 1] = partial_saliency
+
+        time_contributions[t, :, :t + 1, :] = partial_time_cont
+        ft_contributions[t, :, :t + 1, :] = partial_ft_cont
+
+        print(f'Timestep {t} complete')
+
+    return np.nanmean(saliency_over_all_time, axis=0), np.nanmean(time_contributions, axis=0), np.nanmean(ft_contributions, axis=0)
+
+
 def get_tsr_saliency(saliency, input, labels, baseline=None, inputs_to_graph=(), graph_dir=None,
-                     graph_name='TSR', cur_batch=None, ft_dim_last=True):
+                     graph_name='TSR', cur_batch=None, ft_dim_last=True, average_over_time=True):
     batch_size, num_timesteps, num_features = input.shape
 
-    TSR_attributions, time_contributions, ft_contributions = getTwoStepRescaling(saliency, input, labels, hasBaseline=baseline,
+    if average_over_time:
+        TSR_attributions, time_contributions, ft_contributions = tsr_over_time(saliency, input, labels, baseline=baseline,
+                                                                                 return_time_ft_contributions=True, ft_dim_last=ft_dim_last)
+    else:
+        TSR_attributions, time_contributions, ft_contributions = getTwoStepRescaling(saliency, input, labels, hasBaseline=baseline,
                                                                                  return_time_ft_contributions=True, ft_dim_last=ft_dim_last)
 
     assert len(inputs_to_graph) == 0 or (graph_dir is not None and cur_batch is not None)
