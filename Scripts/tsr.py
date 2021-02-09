@@ -21,7 +21,7 @@ def get_attribution(saliency, input, label, baselines, feature_mask, sliding_win
 
 
 def getTwoStepRescaling(saliency, input, TestingLabel, hasBaseline=None, hasFeatureMask=None,
-                        hasSliding_window_shapes=None, return_time_ft_contributions=False, ft_dim_last=True):
+                        hasSliding_window_shapes=None, return_time_ft_contributions=False, ft_dim_last=True, generator=None):
     batch_size, sequence_length, input_size = input.shape if ft_dim_last else (input.shape[0], input.shape[2], input.shape[1])
     assignment = input[0, 0, 0]
     timeGrad = np.zeros((batch_size, sequence_length))
@@ -55,6 +55,8 @@ def getTwoStepRescaling(saliency, input, TestingLabel, hasBaseline=None, hasFeat
         for c in range(input_size):
             newInput = input.clone()
             i1, i2 = (t, c) if ft_dim_last else (c, t)
+            if generator is not None and t > 0:
+                assignment = generator.forward_conditional(input[:, :, :t].float(), input[:, :, t].float(), [0 if c != 0 else 1])[0][:, c]
             newInput[:, i1, i2] = assignment
 
             inputGrad_perInput = get_attribution(saliency, newInput, TestingLabel, hasBaseline, hasFeatureMask, hasSliding_window_shapes)
@@ -74,11 +76,12 @@ def getTwoStepRescaling(saliency, input, TestingLabel, hasBaseline=None, hasFeat
 
 
 def get_tsr_saliency(saliency, input, labels, baseline=None, inputs_to_graph=(), graph_dir=None,
-                     graph_name='TSR', cur_batch=None, ft_dim_last=True):
+                     graph_name='TSR', cur_batch=None, ft_dim_last=True, generator=None):
     batch_size, num_timesteps, num_features = input.shape
 
     TSR_attributions, time_contributions, ft_contributions = getTwoStepRescaling(saliency, input, labels, hasBaseline=baseline,
-                                                                                 return_time_ft_contributions=True, ft_dim_last=ft_dim_last)
+                                                                                 return_time_ft_contributions=True, ft_dim_last=ft_dim_last,
+                                                                                 generator=generator)
 
     assert len(inputs_to_graph) == 0 or (graph_dir is not None and cur_batch is not None)
     for index in inputs_to_graph:
