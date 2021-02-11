@@ -7,11 +7,11 @@ from torch import nn
 class TCN(nn.Module):
 
     def __init__(self, input_size, output_size, num_channels,
-                 kernel_size=2, dropout=0.3):
+                 kernel_size=2, dropout=0.3, ft_dim_last=True):
         super(TCN, self).__init__()
         self.input_size=input_size
         self.tcn = TemporalConvNet(input_size, num_channels, kernel_size, dropout=dropout)
-
+        self.ft_dim_last = ft_dim_last
         self.fc = nn.Linear(num_channels[-1], output_size)
 
 
@@ -19,7 +19,7 @@ class TCN(nn.Module):
         # Set initial states
         # print("input", x.shape)
         """Input ought to have dimension (N, C_in, L_in), where L_in is the seq_len; here the input is (N, L, C)"""
-        output = self.tcn(x.transpose(1, 2))
+        output = self.tcn(x.transpose(1, 2) if self.ft_dim_last else x)
         output, _ = torch.max(output, -1)
         out = self.fc(output)
         out =F.softmax(out, dim=1)

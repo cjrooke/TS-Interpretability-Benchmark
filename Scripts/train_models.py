@@ -34,7 +34,6 @@ def train_model(model, model_type, model_name, criterion, train_loader, test_loa
 		for i, (samples, labels) in enumerate(train_loader):
 
 			model.train()
-			samples = samples.reshape(-1, num_timesteps, num_features).to(device)
 			samples = Variable(samples)
 			labels = labels.to(device)
 			labels = Variable(labels).long()

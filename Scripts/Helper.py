@@ -233,11 +233,9 @@ def checkAccuracy(test_loader, model, num_timesteps, num_features, isCNN=False, 
 
     for (samples, labels) in test_loader:
         if isCNN:
-            images = samples.reshape(-1, 1, num_timesteps, num_features).to(device)
-        else:
-            images = samples.reshape(-1, num_timesteps, num_features).to(device)
+            samples = torch.unsqueeze(samples, dim=1).to(device)
 
-        outputs = model(images)
+        outputs = model(samples)
         if(returnLoss):
             labels = labels.to(device)
             loss+=criterion(outputs, labels).data
