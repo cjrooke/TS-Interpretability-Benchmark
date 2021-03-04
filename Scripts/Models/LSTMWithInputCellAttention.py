@@ -118,18 +118,21 @@ class InputCellAttention(nn.Module):
 
 
 class LSTMWithInputCellAttention(nn.Module):
-    def __init__(self, input_size, hidden_size ,num_classes , rnndropout ,r,d_a):
+    def __init__(self, input_size, hidden_size ,num_classes , rnndropout ,r,d_a, ft_dim_last=True):
         super().__init__()
         self.hidden_size = hidden_size
         self.drop = nn.Dropout(rnndropout)  
         self.fc = nn.Linear(hidden_size, num_classes) 
         self.rnn =InputCellAttention(input_size, hidden_size,r,d_a)
+        self.ft_dim_last = ft_dim_last
 
 
 
         
     def forward(self, x):
         # Set initial states
+        if not self.ft_dim_last:
+            x = x.transpose(1, 2)
         h0 = torch.zeros(1, x.size(0), self.hidden_size).to(device) 
         c0 = torch.zeros(1, x.size(0), self.hidden_size).to(device)
         h0 = h0.double()
