@@ -160,6 +160,7 @@ def parse_arguments(argv):
 	parser.add_argument('--DLSTSRFlag', type=bool, default=True)
 
 	parser.add_argument('--FITFlag', type=bool, default=False)
+	parser.add_argument('--IFITFlag', type=bool, default=True)
 
 	return parser.parse_args()
 

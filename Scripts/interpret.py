@@ -26,6 +26,7 @@ from . import Helper
 from .Helper import checkAccuracy
 from .getSaliencyMapMetadata import getSaliencyMapMetadata
 from .Plotting.plot import *
+from inverse_fit import inverse_fit_attribute
 # from FIT.TSX.generator import JointFeatureGenerator
 # from FIT.TSX.explainers import FITExplainer
 
@@ -48,6 +49,7 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
     run_feature_ablation = "FeatureAblation" in saliency_methods
     run_occlusion = "Occlusion" in saliency_methods
     run_fit = "FIT" in saliency_methods
+    run_ifit = "IFIT" in saliency_methods
     
     if run_grad or run_grad_tsr:
         Grad = Saliency(pretrained_model)
@@ -106,6 +108,9 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
         generator = JointFeatureGenerator(num_features, latent_size=50, data='none')
         # TODO: Increase epochs
         FIT.fit_generator(generator, train_loader, test_loader, n_epochs=50)
+
+    if run_ifit:
+        rescaledIFIT = np.zeros(test_shape)
 
     idx = 0
     mask = np.zeros((num_timesteps, num_features), dtype=int)
@@ -191,6 +196,10 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = torch.from_numpy(FIT.attribute(input, labels))
             rescaledFIT[idx:idx + batch_size, :, :] = Helper.givenAttGetRescaledSaliency(num_timesteps, num_features, attributions)
 
+        if run_ifit:
+            attributions = torch.from_numpy(inverse_fit_attribute(input, pretrained_model, ft_dim_last=True))
+            rescaledIFIT[idx:idx + batch_size, :, :] = attributions
+
         idx += batch_size
 
     if run_grad:
@@ -248,6 +257,10 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
     if run_fit:
         print("Saving FIT", model_name + "_" + model_type)
         np.save(saliency_dir + model_name + "_" + model_type + "_FIT_rescaled", rescaledFIT)
+
+    if run_ifit:
+        print("Saving IFIT", model_name + "_" + model_type)
+        np.save(saliency_dir + model_name + "_" + model_type + "_IFIT_rescaled", rescaledIFIT)
 
 
 def main(args,DatasetsTypes,DataGenerationTypes,models,device):

@@ -70,6 +70,8 @@ def getSaliencyMethodsFromArgs(args):
         saliency_methods.append("Occlusion")
     if args.FITFlag:
         saliency_methods.append("FIT")
+    if args.IFITFlag:
+        saliency_methods.append("IFIT")
     return saliency_methods
 
 
