@@ -39,37 +39,35 @@ models = ["Transformer", "LSTMWithInputCellAttention", "TCN", "LSTM"]
 
 
 def main(args):
-	# # Create any required directories
-	# create_empty_dirs(args)
-	#
-	# # Creating Datasets
-	# createDatasets(args,DatasetsTypes,ImpTimeSteps,ImpFeatures,StartImpTimeSteps,StartImpFeatures,Loc1,Loc2,FreezeType,isMoving,isPositional,DataGenerationTypes)
-	#
-	# #Train Models
-	# train_models(args,DatasetsTypes,DataGenerationTypes,models,device)
+	# Create any required directories
+	create_empty_dirs(args)
 
+	# Creating Datasets
+	createDatasets(args,DatasetsTypes,ImpTimeSteps,ImpFeatures,StartImpTimeSteps,StartImpFeatures,Loc1,Loc2,FreezeType,isMoving,isPositional,DataGenerationTypes)
 
-	#Decreasing batch size for captum 
+	# Train Models
+	train_models(args,DatasetsTypes,DataGenerationTypes,models,device)
+
+	# Decreasing batch size for captum
 	args.batch_size=10
 
-	#Get Saliency maps
+	# Get Saliency maps
 	interpret(args,DatasetsTypes,DataGenerationTypes,models,device)
 
-	#create Masks
+	# create Masks
 	createMasks(args,DatasetsTypes,DataGenerationTypes,models)
 
-	#Get Masked Accuracy
+	# Get Masked Accuracy
 	getMaskedAccuracy(args,DatasetsTypes,DataGenerationTypes,models,device)
 
 
-	#Get precsion and recall
+	# Get precsion and recall
 	getPrecisionRecall(args,DatasetsTypes,DataGenerationTypes,models)
 
-
-	#Get AUC, AUR, AUP and AUPR
+	# Get AUC, AUR, AUP and AUPR
 	getAccuracyMetrics(args,DatasetsTypes,DataGenerationTypes,models)
 
-	#For Feature  and time level precsion and recall
+	# For Feature  and time level precsion and recall
 	getFeatureTimePrecisionRecall(args,DatasetsTypes,DataGenerationTypes,models)
 	args.Feature_PrecisionRecall=True
 	args.Time_PrecisionRecall=True
