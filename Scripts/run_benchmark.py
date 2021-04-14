@@ -142,7 +142,7 @@ def parse_arguments(argv):
 	parser.add_argument('--Time_PrecisionRecall', type=bool, default=False)
 
 
-	parser.add_argument('--GradFlag', type=bool, default=True)
+	parser.add_argument('--GradFlag', type=bool, default=False)
 	parser.add_argument('--IGFlag', type=bool, default=False)
 	parser.add_argument('--DLFlag', type=bool, default=False)
 	parser.add_argument('--GSFlag', type=bool, default=False)
@@ -153,12 +153,14 @@ def parse_arguments(argv):
 	parser.add_argument('--FeatureAblationFlag', type=bool, default=False)
 	parser.add_argument('--OcclusionFlag', type=bool, default=False)
 
-	parser.add_argument('--GradTSRFlag', type=bool, default=True)
+	parser.add_argument('--GradTSRFlag', type=bool, default=False)
 	parser.add_argument('--IGTSRFlag', type=bool, default=False)
 	parser.add_argument('--DLSTSRFlag', type=bool, default=False)
 
 	parser.add_argument('--FITFlag', type=bool, default=False)
-	parser.add_argument('--IFITFlag', type=bool, default=True)
+	parser.add_argument('--IFITFlag', type=bool, default=False)
+	parser.add_argument('--WFITFlag', type=bool, default=False)
+	parser.add_argument('--IWFITFlag', type=bool, default=False)
 
 	return parser.parse_args()
 

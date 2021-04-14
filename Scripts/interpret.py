@@ -26,9 +26,9 @@ from . import Helper
 from .Helper import checkAccuracy
 from .getSaliencyMapMetadata import getSaliencyMapMetadata
 from .Plotting.plot import *
-from inverse_fit import inverse_fit_attribute
-# from FIT.TSX.generator import JointFeatureGenerator
-# from FIT.TSX.explainers import FITExplainer
+from inverse_fit import inverse_fit_attribute, wfit_attribute
+from FIT.TSX.generator import JointFeatureGenerator
+from FIT.TSX.explainers import FITExplainer
 
 
 def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_loader, test_loader, device, 
@@ -50,7 +50,9 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
     run_occlusion = "Occlusion" in saliency_methods
     run_fit = "FIT" in saliency_methods
     run_ifit = "IFIT" in saliency_methods
-    
+    run_wfit = "WFIT" in saliency_methods
+    run_iwfit = "IWFIT" in saliency_methods
+
     if run_grad or run_grad_tsr:
         Grad = Saliency(pretrained_model)
     if run_grad:
@@ -102,15 +104,18 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
         OS = Occlusion(pretrained_model)
 
     if run_fit:
-        # TODO: Figure out a good set of hyperparameters for these
         rescaledFIT = np.zeros(test_shape)
         FIT = FITExplainer(pretrained_model, ft_dim_last=True)
-        generator = JointFeatureGenerator(num_features, latent_size=50, data='none')
+        generator = JointFeatureGenerator(num_features, data='none')
         # TODO: Increase epochs
-        FIT.fit_generator(generator, train_loader, test_loader, n_epochs=50)
+        FIT.fit_generator(generator, train_loader, test_loader, n_epochs=300)
 
     if run_ifit:
         rescaledIFIT = np.zeros(test_shape)
+    if run_wfit:
+        rescaledWFIT = np.zeros(test_shape)
+    if run_iwfit:
+        rescaledIWFIT = np.zeros(test_shape)
 
     idx = 0
     mask = np.zeros((num_timesteps, num_features), dtype=int)
@@ -200,6 +205,14 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
             attributions = torch.from_numpy(inverse_fit_attribute(input, pretrained_model, ft_dim_last=True))
             rescaledIFIT[idx:idx + batch_size, :, :] = attributions
 
+        if run_wfit:
+            attributions = torch.from_numpy(wfit_attribute(input, pretrained_model, N=test_shape[1], ft_dim_last=True, single_label=True))
+            rescaledWFIT[idx:idx + batch_size, :, :] = attributions
+
+        if run_iwfit:
+            attributions = torch.from_numpy(wfit_attribute(input, pretrained_model, N=test_shape[1], ft_dim_last=True, single_label=True, inverse=True))
+            rescaledIWFIT[idx:idx + batch_size, :, :] = attributions
+
         idx += batch_size
 
     if run_grad:
@@ -261,6 +274,15 @@ def run_saliency_methods(saliency_methods, pretrained_model, test_shape, train_l
     if run_ifit:
         print("Saving IFIT", model_name + "_" + model_type)
         np.save(saliency_dir + model_name + "_" + model_type + "_IFIT_rescaled", rescaledIFIT)
+
+    if run_wfit:
+        print("Saving WFIT", model_name + "_" + model_type)
+        np.save(saliency_dir + model_name + "_" + model_type + "_WFIT_rescaled", rescaledWFIT)
+
+    if run_iwfit:
+        print("Saving IWFIT", model_name + "_" + model_type)
+        np.save(saliency_dir + model_name + "_" + model_type + "_IWFIT_rescaled", rescaledIWFIT)
+
 
 
 def main(args,DatasetsTypes,DataGenerationTypes,models,device):

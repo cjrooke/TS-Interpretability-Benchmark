@@ -72,6 +72,10 @@ def getSaliencyMethodsFromArgs(args):
         saliency_methods.append("FIT")
     if args.IFITFlag:
         saliency_methods.append("IFIT")
+    if args.WFITFlag:
+        saliency_methods.append("WFIT")
+    if args.IWFITFlag:
+        saliency_methods.append("IWFIT")
     return saliency_methods
 
 
