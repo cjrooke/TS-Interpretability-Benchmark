@@ -17,25 +17,25 @@ from .getFeatureTimePrecisionRecall import main as getFeatureTimePrecisionRecall
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-DatasetsTypes= ["Middle", "SmallMiddle", "Moving_Middle", "Moving_SmallMiddle", "RareTime", "Moving_RareTime", "RareFeature","Moving_RareFeature","PostionalTime", "PostionalFeature"][0:1]
+DatasetsTypes = ["Middle", "SmallMiddle", "Moving_Middle", "Moving_SmallMiddle", "RareTime", "Moving_RareTime", "RareFeature", "Moving_RareFeature", "PostionalTime", "PostionalFeature"]
 
-ImpTimeSteps=[30,14,30,15,6,6, 40,40,20,20][0:1]
-ImpFeatures=[30,14,30,15,40,40,6,6,20,20][0:1]
+ImpTimeSteps = [30, 14, 30, 15, 6, 6, 40, 40, 20, 20]
+ImpFeatures = [30, 14, 30, 15, 40, 40, 6, 6, 20, 20]
 
-StartImpTimeSteps=[10,18,10,18,22,22,5,5,None,None ][0:1]
-StartImpFeatures=[10,18,10,18,5,5,22,22,None,None ][0:1]
+StartImpTimeSteps = [10, 18, 10, 18, 22, 22, 5, 5, None, None]
+StartImpFeatures = [10, 18, 10, 18, 5, 5, 22, 22, None, None]
 
-Loc1=[None,None,None,None,None,None,None,None,1,1][0:1]
-Loc2=[None,None,None,None,None,None,None,None,29,29][0:1]
+Loc1 = [None, None, None, None, None, None, None, None, 1, 1]
+Loc2 = [None, None, None, None, None, None, None, None, 29, 29]
 
 
-FreezeType = [None,None,None,None,None,None,None,None,"Feature","Time"][0:1]
-isMoving=[False,False,True,True,False,True,False,True,None,None][0:1]
-isPositional=[False,False,False,False,False,False,False,False,True,True][0:1]
+FreezeType = [None, None, None, None, None, None, None, None, "Feature", "Time"]
+isMoving = [False, False, True, True, False, True, False, True, None, None]
+isPositional = [False, False, False, False, False, False, False, False, True, True]
 
-DataGenerationTypes=[None]
+DataGenerationTypes = [None, "Harmonic", "GaussianProcess", "PseudoPeriodic", "AutoRegressive", "CAR", "NARMA"]
 
-models=["LSTMWithInputCellAttention"]
+models = ["Transformer", "LSTMWithInputCellAttention", "TCN", "LSTM"]
 
 
 def main(args):
